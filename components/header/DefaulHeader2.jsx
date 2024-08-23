@@ -36,9 +36,9 @@ const DefaulHeader2 = () => {
             <div className="logo">
               <Link href="/">
                 <Image
-                  width={153}
-                  height={60}
-                  src="/images/logo.svg"
+                  width={98}
+                  height={1}
+                  src="/images/jordii-logo.png"
                   alt="brand"
                 />
               </Link>

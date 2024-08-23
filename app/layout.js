@@ -2,6 +2,7 @@
 import Aos from "aos";
 import "aos/dist/aos.css";
 import "../styles/index.scss";
+import "../styles/globals.css";
 import { useEffect } from "react";
 import ScrollToTop from "../components/common/ScrollTop";
 import { Provider } from "react-redux";

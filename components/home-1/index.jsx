@@ -9,10 +9,14 @@ import FooterDefault from "../footer/common-footer";
 import Funfact from "../fun-fact-counter/Funfact";
 import DefaulHeader2 from "../header/DefaulHeader2";
 import MobileMenu from "../header/MobileMenu";
-import Hero1 from "../hero/hero-1";
+import Hero3 from "../hero/hero-3";
 import JobCategorie1 from "../job-categories/JobCategorie1";
 import JobFeatured1 from "../job-featured/JobFeatured1";
 import Testimonial from "../testimonial/Testimonial";
+import TopCompany from "../top-company/TopCompany";
+import Candidates from "../candidates/Candidates";
+
+
 
 const index = () => {
   return (
@@ -26,7 +30,7 @@ const index = () => {
       <MobileMenu />
       {/* End MobileMenu */}
 
-      <Hero1 />
+      <Hero3 />
       {/* End Hero Section */}
 
       <section className="job-categories ui-job-categories">
@@ -63,7 +67,7 @@ const index = () => {
 
           <div className="btn-box">
             <Link
-              href="/job-list-v1"
+              href="/job-list-v5"
               className="theme-btn btn-style-one bg-blue"
             >
               <span className="btn-title">Load More Listing</span>
@@ -72,6 +76,59 @@ const index = () => {
         </div>
       </section>
       {/* End Job Featured Section */}
+
+      <section className="top-companies">
+        <div className="auto-container">
+          <div className="sec-title">
+            <h2>Top Company Registered</h2>
+            <div className="text">
+              Some of the companies we have helped recruit excellent applicants
+              over the years.
+            </div>
+          </div>
+
+          <div className="carousel-outer" data-aos="fade-up">
+            <div className="companies-carousel">
+              <TopCompany />
+            </div>
+          </div>
+          <div className="btn-box text-center">
+            <Link
+              href="/employers-list-v3"
+              className="theme-btn btn-style-one bg-blue"
+            >
+              <span className="btn-title">Load More Companies</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+      {/* <!-- End Top Companies --> */}
+
+      <section className="candidates-section">
+        <div className="auto-container">
+          <div className="sec-title">
+            <h2>Featured Candidates</h2>
+            <div className="text">
+              Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
+            </div>
+          </div>
+
+          <div className="carousel-outer" data-aos="fade-up">
+            <div className="candidates-carousel default-dots">
+              <Candidates />
+            </div>
+          </div>
+          <div className="btn-box text-center">
+            <Link
+              href="/job-list-v1"
+              className="theme-btn btn-style-one bg-blue"
+            >
+              <span className="btn-title">Load More Candidates</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+      {/* <!-- End Candidates Section --> */}
 
       <section className="testimonial-section">
         <div className="container-fluid">
