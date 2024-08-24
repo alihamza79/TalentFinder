@@ -1,17 +1,20 @@
-
 'use client'
 
+import { useState , useEffect} from 'react'; // Import useState hook
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import LoginWithSocial from "./LoginWithSocial";
-import FormContent2 from "./FormContent2";
+import FormContent from "./FormContent";
 import Link from "next/link";
 
 const Register2 = () => {
+
+  const [isEmployer, setIsEmployer] = useState(false); // State to track whether it's an employer or not
+
   return (
     <div className="form-inner">
-      <h3>Create a Free Superio Account</h3>
+      <h3>Create a free DIGI-X-TECH Account</h3>
 
-      <Tabs>
+      <Tabs onSelect={(index) => setIsEmployer(index === 1)}> {/* Update isEmployer based on the selected tab */}
         <div className="form-group register-dual">
           <TabList className="btn-box row">
             <Tab className="col-lg-6 col-md-12">
@@ -30,12 +33,12 @@ const Register2 = () => {
         {/* End .form-group */}
 
         <TabPanel>
-          <FormContent2 />
+          <FormContent isEmployer={false} /> {/* Pass false for candidates */}
         </TabPanel>
-        {/* End cadidates Form */}
+        {/* End Candidate Form */}
 
         <TabPanel>
-          <FormContent2 />
+          <FormContent isEmployer={true} /> {/* Pass true for employers */}
         </TabPanel>
         {/* End Employer Form */}
       </Tabs>
