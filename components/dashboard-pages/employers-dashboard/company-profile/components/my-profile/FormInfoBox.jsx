@@ -1,7 +1,8 @@
-
 'use client'
 
+import { useState } from "react";
 import Select from "react-select";
+import { useFormData } from "@/context/FormDataContext";  // Import the context hook
 
 const FormInfoBox = () => {
     const catOptions = [
@@ -9,113 +10,179 @@ const FormInfoBox = () => {
         { value: "Digital & Creative", label: "Digital & Creative" },
         { value: "Retail", label: "Retail" },
         { value: "Human Resources", label: "Human Resources" },
-        { value: "Managemnet", label: "Managemnet" },
+        { value: "Management", label: "Management" },
         { value: "Accounting & Finance", label: "Accounting & Finance" },
         { value: "Digital", label: "Digital" },
         { value: "Creative Art", label: "Creative Art" },
     ];
 
+    const { updateFormData } = useFormData();  // Hook for updating global state
+    const [formData, setFormData] = useState({
+        companyName: "",
+        email: "",
+        phone: "",
+        website: "",
+        estSince: "",
+        teamSize: "",
+        category: [catOptions[2]],  // Default selected category
+        allowListing: "Yes",
+        aboutCompany: "",
+    });
+
+    // Update state on form field change
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    // Update category select
+    const handleCategoryChange = (selectedOptions) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            category: selectedOptions,
+        }));
+    };
+
+    // Handle form submission (save data to global state)
+    const handleSave = (e) => {
+        e.preventDefault();
+        // console.log("Form Data Saved:", formData);
+        updateFormData('companyInfo', formData);  // Save the form data in the global state
+    };
+
     return (
-        <form className="default-form">
+        <form className="default-form" onSubmit={handleSave}>
             <div className="row">
-                {/* <!-- Input --> */}
+                {/* Company Name Input */}
                 <div className="form-group col-lg-6 col-md-12">
-                    <label>Company name (optional)</label>
+                    <label>Company name</label>
                     <input
                         type="text"
-                        name="name"
+                        name="companyName"
                         placeholder="Invisionn"
+                        value={formData.companyName}
                         required
+                        onChange={handleInputChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Email Address Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Email address</label>
                     <input
-                        type="text"
-                        name="name"
+                        type="email"
+                        name="email"
                         placeholder="ib-themes"
+                        value={formData.email}
                         required
+                        onChange={handleInputChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Phone Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Phone</label>
                     <input
                         type="text"
-                        name="name"
+                        name="phone"
                         placeholder="0 123 456 7890"
+                        value={formData.phone}
                         required
+                        onChange={handleInputChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Website Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Website</label>
                     <input
                         type="text"
-                        name="name"
+                        name="website"
                         placeholder="www.invision.com"
+                        value={formData.website}
                         required
+                        onChange={handleInputChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Est. Since Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Est. Since</label>
                     <input
                         type="text"
-                        name="name"
+                        name="estSince"
                         placeholder="06.04.2020"
+                        value={formData.estSince}
                         required
+                        onChange={handleInputChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Team Size Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Team Size</label>
-                    <select className="chosen-single form-select" required>
-                        <option>50 - 100</option>
-                        <option>100 - 150</option>
-                        <option>200 - 250</option>
-                        <option>300 - 350</option>
-                        <option>500 - 1000</option>
+                    <select
+                        name="teamSize"
+                        className="chosen-single form-select"
+                        value={formData.teamSize}
+                        required
+                        onChange={handleInputChange}
+                    >
+                        <option value="50 - 100">50 - 100</option>
+                        <option value="100 - 150">100 - 150</option>
+                        <option value="200 - 250">200 - 250</option>
+                        <option value="300 - 350">300 - 350</option>
+                        <option value="500 - 1000">500 - 1000</option>
                     </select>
                 </div>
 
-                {/* <!-- Search Select --> */}
+                {/* Multiple Category Select */}
                 <div className="form-group col-lg-6 col-md-12">
-                    <label>Multiple Select boxes </label>
+                    <label>Multiple Select boxes</label>
                     <Select
-                        defaultValue={[catOptions[2]]}
+                        value={formData.category}
                         isMulti
-                        name="colors"
+                        name="category"
                         options={catOptions}
                         className="basic-multi-select"
                         classNamePrefix="select"
+                        onChange={handleCategoryChange}
                     />
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Allow In Search & Listing Input */}
                 <div className="form-group col-lg-6 col-md-12">
                     <label>Allow In Search & Listing</label>
-                    <select className="chosen-single form-select">
-                        <option>Yes</option>
-                        <option>No</option>
+                    <select
+                        name="allowListing"
+                        className="chosen-single form-select"
+                        value={formData.allowListing}
+                        onChange={handleInputChange}
+                    >
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
                     </select>
                 </div>
 
-                {/* <!-- About Company --> */}
+                {/* About Company Textarea */}
                 <div className="form-group col-lg-12 col-md-12">
                     <label>About Company</label>
-                    <textarea placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"></textarea>
+                    <textarea
+                        name="aboutCompany"
+                        placeholder="Description about the company"
+                        value={formData.aboutCompany}
+                        onChange={handleInputChange}
+                    ></textarea>
                 </div>
 
-                {/* <!-- Input --> */}
+                {/* Save Button */}
                 <div className="form-group col-lg-6 col-md-12">
-                    <button className="theme-btn btn-style-one">Save</button>
+                    <button className="theme-btn btn-style-one" type="submit">
+                        Save
+                    </button>
                 </div>
             </div>
         </form>

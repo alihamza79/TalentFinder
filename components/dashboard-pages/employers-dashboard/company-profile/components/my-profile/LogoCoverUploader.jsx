@@ -1,18 +1,21 @@
-
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useFormData } from "@/context/FormDataContext";
 
 const LogoCoverUploader = () => {
     const [logoImg, setLogoImg] = useState("");
-    const [converImg, setCoverImg] = useState("");
+    const [coverImg, setCoverImg] = useState("");
+    const { updateFormData } = useFormData();
 
-    // logo image
+    useEffect(() => {
+        updateFormData('companyInfo', { logoImg, coverImg });
+    }, [logoImg, coverImg]);
+
     const logoHandler = (file) => {
         setLogoImg(file);
     };
 
-    // cover image
     const coverHandler = (file) => {
         setCoverImg(file);
     };
@@ -36,11 +39,9 @@ const LogoCoverUploader = () => {
                     >
                         {logoImg !== "" ? logoImg?.name : " Browse Logo"}
                     </label>
-                    <span className="uploadButton-file-name"></span>
                 </div>
                 <div className="text">
-                    Max file size is 1MB, Minimum dimension: 330x300 And
-                    Suitable files are .jpg & .png
+                    Max file size is 1MB, Minimum dimension: 330x300 And Suitable files are .jpg & .png
                 </div>
             </div>
 
@@ -58,13 +59,11 @@ const LogoCoverUploader = () => {
                         className="uploadButton-button ripple-effect"
                         htmlFor="upload_cover"
                     >
-                        {converImg !== "" ? converImg?.name : "Browse Cover"}
+                        {coverImg !== "" ? coverImg?.name : "Browse Cover"}
                     </label>
-                    <span className="uploadButton-file-name"></span>
                 </div>
                 <div className="text">
-                    Max file size is 1MB, Minimum dimension: 330x300 And
-                    Suitable files are .jpg & .png
+                    Max file size is 1MB, Minimum dimension: 330x300 And Suitable files are .jpg & .png
                 </div>
             </div>
         </>
