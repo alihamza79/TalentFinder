@@ -9,10 +9,11 @@ const jobSeekersTeamId = process.env.NEXT_PUBLIC_JOB_SEEKERS_TEAM_ID;
 const companiesTeamId = process.env.NEXT_PUBLIC_COMPANIES_TEAM_ID;
 // Create a new Appwrite client
 const client = new sdk.Client();
-client.setEndpoint(Endpoint).setProject(projectID).setKey(talentFinderApi);
+client.setEndpoint(Endpoint).setProject(projectID);
 
 export const account = new sdk.Account(client);
 export const databases = new sdk.Databases(client);
 export const storage = new sdk.Storage(client);
 export const teams = new sdk.Teams(client); // Add the Teams service
 export { databaseId, projectID, jobSeekersTeamId, companiesTeamId };
+

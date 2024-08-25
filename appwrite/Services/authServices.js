@@ -3,9 +3,10 @@ import { databases, databaseId } from "../config";
 import db from "./dbServices";
 import { initializeCollections } from "../collections";
 import { ID } from "appwrite"; 
+import { createCompanyCollectionAndDocument , createJobSeekerCollectionAndDocument } from "@/global-functions/functions";
 import { collections } from "../collections";
 // Function to register a new user and automatically assign to a team
-export async function registerUser(email, password, isEmployer) {
+export async function registerUser(email, password, isEmployer, profileData = {}) {
   try {
     // Step 1: Register the user
     const user = await account.create(ID.unique(), email, password);
@@ -17,88 +18,12 @@ export async function registerUser(email, password, isEmployer) {
     // Step 3: Assign the user to a team
     await assignUserToTeam(user.$id, email, isEmployer);
 
-    // Step 4: If the user is an employer, check if 'company' collection exists
-    if (isEmployer) {
-      const existingCollections = await databases.listCollections(databaseId);
-      const companyCollectionExists = existingCollections.collections.some(
-        (collection) => collection.name === "company"
-      );
-
-      // If the 'company' collection does not exist, create it
-      if (!companyCollectionExists) {
-        const companyAttributes = [
-          { type: "string", name: "name", required: true, size: 500 },
-          { type: "string", name: "email", required: true, size: 500 },
-          { type: "string", name: "phone", required: false, size: 20 },
-          { type: "string", name: "website", required: false, size: 500 },
-          { type: "string", name: "since", required: false, size: 20 },
-          { type: "string", name: "companySize", required: false, size: 100 },
-          {
-            type: "string",
-            name: "allowListingVisibility",
-            required: false,
-            size: 10,
-          },
-          { type: "string", name: "aboutCompany", required: false, size: 1000 },
-          { type: "string", name: "categoryTags", required: false, array: true , size: 500 }, // Mark as array
-          { type: "string", name: "socials", required: false, array: true , size: 500 }, 
-          { type: "string", name: "city", required: false, size: 500 },
-          { type: "string", name: "address", required: false, size: 500 },
-          { type: "string", name: "country", required: false, size: 100 },
-          { type: "string", name: "userId", required: true, size: 500 },
-        ];
-
-        // Use dbServices to create the collection
-        await db.createCollection("company", companyAttributes);
-        console.log("Company collection created successfully.");
-
-        // Re-initialize collections so the new collection is available
-        await initializeCollections();
-        console.log("Collections re-initialized.");
+      // Step 4: If the user is an employer, create the company collection and document, otherwise create JobSeeker collection
+      if (isEmployer) {
+        await createCompanyCollectionAndDocument(user.$id, profileData);
       } else {
-        console.log("Company collection already exists.");
+        await createJobSeekerCollectionAndDocument(user.$id, profileData);
       }
-
-      // Step 5: Check if db.company exists after reinitializing collections
-      if (!db.company) {
-        const companyCollection = collections.find((col) => col.name === "company");
-        if (companyCollection) {
-          // Initialize db.company after the collection is created
-          db.company = {
-            create: async (payload, id = ID.unique()) =>
-              await databases.createDocument(databaseId, companyCollection.id, id, payload),
-            update: async (id, payload) =>
-              await databases.updateDocument(databaseId, companyCollection.id, id, payload),
-            get: async (id) => await databases.getDocument(databaseId, companyCollection.id, id),
-            list: async (queries) =>
-              await databases.listDocuments(databaseId, companyCollection.id, queries),
-            delete: async (id) => await databases.deleteDocument(databaseId, companyCollection.id, id),
-          };
-        }
-      }
-
-      // Create a document in the 'company' collection with the user's details
-      const companyDocumentPayload = {
-        name: "", // Replace with actual company name
-        email: "", // Replace with actual company email
-        phone: "", // Replace with actual company phone
-        website: "", // Replace with actual website
-        since: "", // Replace with actual foundation year
-        companySize: "", // Replace with actual company size
-        allowListingVisibility: "", // Replace with actual visibility option
-        aboutCompany: "", // Replace with actual aboutCompany description
-        categoryTags: [], // Replace with actual category tags
-        socials: [], // Replace with actual social media links
-        city: "", // Replace with actual city
-        address: "", // Replace with actual address
-        country: "", // Replace with actual country
-        userId: user.$id, // Store the user's ID in the document
-      };
-
-      // Use dbServices to create the document in the company collection
-      await db.company.create(companyDocumentPayload);
-      console.log("Company document created successfully.");
-    }
 
     return user;
   } catch (error) {
@@ -106,6 +31,19 @@ export async function registerUser(email, password, isEmployer) {
     throw error;
   }
 }
+
+// Function to sign in the user by email and password, return user details, and team membership
+export const signIn = async (email, password) => {
+  try {
+    const session = await account.createEmailPasswordSession(email, password);
+    localStorage.setItem("authToken", session.$id); // Store the session ID
+    return session;
+  } catch (error) {
+    console.error("Login error:", error); // Log the error details
+    throw error;
+  }
+};
+
 
 // Function to assign the authenticated user to a team (can be called separately)
 export async function assignUserToTeam(userId, email, isEmployer) {

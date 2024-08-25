@@ -1,7 +1,6 @@
 import { initializeCollections, collections } from "../collections";
 import { databaseId, databases } from "../config";
 import { ID, Permission, Role } from "appwrite";
-import storageServices from "./storageServices";
 
 // Initialize collections before using them
 (async () => {
@@ -26,7 +25,6 @@ db.createCollection = async (collectionName, attributes = []) => {
     );
     console.log("Collection created successfully:", collection);
 
-    // Loop through attributes and create them based on the type
     for (const attr of attributes) {
       switch (attr.type) {
         case 'string':
@@ -34,9 +32,9 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.size,        // Set the size of the string attribute
-            attr.required,    // Required flag
-            undefined,        // Default value
+            attr.size,
+            attr.required,
+            undefined,
             attr.array || false // Is it an array?
           );
           break;
@@ -45,9 +43,10 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.min,         // Minimum value for integer
-            attr.max,         // Maximum value for integer
-            attr.required
+            attr.min,        // Minimum value for integer
+            attr.max,        // Maximum value for integer
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         case 'boolean':
@@ -55,7 +54,8 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.required
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         case 'float':
@@ -63,9 +63,10 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.min,         // Minimum value for float
-            attr.max,         // Maximum value for float
-            attr.required
+            attr.min,        // Minimum value for float
+            attr.max,        // Maximum value for float
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         case 'enum':
@@ -73,8 +74,9 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.elements,    // List of possible enum values
-            attr.required
+            attr.elements,   // List of possible enum values
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         case 'email':
@@ -82,7 +84,8 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.required
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         case 'url':
@@ -90,7 +93,8 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.required
+            attr.required,
+            attr.array || false // Is it an array?
           );
           break;
         default:
@@ -106,7 +110,62 @@ db.createCollection = async (collectionName, attributes = []) => {
   }
 };
 
+
+// Function to create a company collection and insert a document
+// db.createCompanyCollectionAndDocument = async (userId, companyData) => {
+//   try {
+//     const existingCollections = await databases.listCollections(databaseId);
+//     const companyCollectionExists = existingCollections.collections.some(
+//       (collection) => collection.name === "company"
+//     );
+
+//     if (!companyCollectionExists) {
+//       const companyAttributes = [
+//         { type: "string", name: "name", required: false, size: 500 },
+//         { type: "string", name: "email", required: false, size: 500 },
+//         { type: "string", name: "phone", required: false, size: 20 },
+//         { type: "string", name: "website", required: false, size: 500 },
+//         { type: "string", name: "since", required: false, size: 20 },
+//         { type: "string", name: "companySize", required: false, size: 100 },
+//         { type: "string", name: "allowListingVisibility", required: false, size: 10 },
+//         { type: "string", name: "aboutCompany", required: false, size: 1000 },
+//         { type: "string", name: "categoryTags", required: false, array: true, size: 500 },
+//         { type: "string", name: "socials", required: false, array: true, size: 500 },
+//         { type: "string", name: "city", required: false, size: 500 },
+//         { type: "string", name: "address", required: false, size: 500 },
+//         { type: "string", name: "country", required: false, size: 100 },
+//         { type: "string", name: "userId", required: true, size: 500 },
+//       ];
+
+//       await db.createCollection("company", companyAttributes);
+
+//       // Re-initialize collections so the new collection is available
+//       await initializeCollections();
+//       console.log("Company collection created and collections re-initialized.");
+//     }
+
+//     const companyCollection = collections.find((col) => col.name === "company");
+
+//     // Initialize db.company if not done already
+//     if (!db.company) {
+//       db.company = {
+//         create: async (payload, id = ID.unique()) =>
+//           await databases.createDocument(databaseId, companyCollection.id, id, payload),
+//       };
+//     }
+
+//     const companyDocumentPayload = { ...companyData, userId };
+//     await db.company.create(companyDocumentPayload, ID.unique());
+//     console.log("Company document created successfully.");
+//   } catch (error) {
+//     console.error("Error creating company collection or document:", error);
+//     throw error;
+//   }
+// };
+
 // Initialize db services for each collection in the collections array
+
+
 collections.forEach((col) => {
   db[col.name] = {
     create: async (payload, id = ID.unique()) =>
@@ -124,5 +183,4 @@ collections.forEach((col) => {
       await databases.deleteDocument(databaseId, col.id, id),
   };
 });
-
 export default db;

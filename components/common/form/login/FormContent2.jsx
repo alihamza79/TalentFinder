@@ -1,18 +1,61 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
 import LoginWithSocial from "./LoginWithSocial";
+import { signInUser } from "@/appwrite/Services/authServices"; // Adjust the path as necessary
 
 const FormContent2 = () => {
+  // State to hold form input values
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Handle form submission for login
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setLoading(true);
+
+    try {
+      // Call the signInUser function from authServices
+      const response = await signInUser(email, password);
+
+      // Handle success (e.g., redirect to a dashboard or homepage)
+      console.log("User signed in successfully:", response.user);
+      console.log("User team:", response.team);
+
+      // Redirect user or handle further logic here
+      // For example: router.push("/dashboard");
+    } catch (error) {
+      // Set error message to display in the UI
+      setErrorMessage("Login failed. Please check your credentials and try again.");
+      console.error("Error during sign-in:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="form-inner">
       <h3>Login to Superio</h3>
 
-      {/* <!--Login Form--> */}
-      <form method="post">
+      {/* Error Message */}
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+
+      {/* Login Form */}
+      <form method="post" onSubmit={handleLogin}>
         <div className="form-group">
-          <label>Username</label>
-          <input type="text" name="username" placeholder="Username" required />
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-        {/* name */}
 
         <div className="form-group">
           <label>Password</label>
@@ -20,10 +63,11 @@ const FormContent2 = () => {
             type="password"
             name="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {/* password */}
 
         <div className="form-group">
           <div className="field-outer">
@@ -38,18 +82,17 @@ const FormContent2 = () => {
             </a>
           </div>
         </div>
-        {/* forgot password */}
 
         <div className="form-group">
           <button
             className="theme-btn btn-style-one"
             type="submit"
             name="log-in"
+            disabled={loading} // Disable button when loading
           >
-            Log In
+            {loading ? "Logging in..." : "Log In"}
           </button>
         </div>
-        {/* login */}
       </form>
       {/* End form */}
 
@@ -64,7 +107,6 @@ const FormContent2 = () => {
 
         <LoginWithSocial />
       </div>
-      {/* End bottom-box LoginWithSocial */}
     </div>
   );
 };
