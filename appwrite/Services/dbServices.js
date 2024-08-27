@@ -44,8 +44,9 @@ db.createCollection = async (collectionName, attributes = []) => {
             collection.$id,
             attr.name,
             attr.required,
-            attr.min,
-            attr.max,
+            attr.min, // Minimum value for integer
+            attr.max, // Maximum value for integer
+            null,
             attr.array || false // Is it an array?
           );
           break;
@@ -63,9 +64,10 @@ db.createCollection = async (collectionName, attributes = []) => {
             databaseId,
             collection.$id,
             attr.name,
-            attr.min, // Minimum value for float
-            attr.max, // Maximum value for float
             attr.required,
+            attr.min, // Minimum value for float (optional)
+            attr.max, // Maximum value for float (optional)
+
             attr.array || false // Is it an array?
           );
           break;
@@ -94,9 +96,29 @@ db.createCollection = async (collectionName, attributes = []) => {
             collection.$id,
             attr.name,
             attr.required,
+            null,
             attr.array || false // Is it an array?
           );
           break;
+        case "datetime":
+          await databases.createDatetimeAttribute(
+            databaseId,
+            collection.$id,
+            attr.name,
+            attr.required,
+            undefined, // No default value
+            attr.array || false // Is it an array?
+          );
+          break;
+        // case "object":
+        //   await databases.createObjectAttribute(
+        //     databaseId,
+        //     collection.$id,
+        //     attr.name,
+        //     attr.required,
+        //     attr.array || false // Is it an array?
+        //   );
+        //   break;
         default:
           console.error(`Unknown attribute type: ${attr.type}`);
       }
