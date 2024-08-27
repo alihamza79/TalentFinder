@@ -134,12 +134,15 @@ export async function assignUserToTeam(userId, email, isEmployer) {
   }
 }
 
-// Function to log out the user
 export const signOutUser = async () => {
   try {
-    await account.deleteSession("current"); // End the current session
-    localStorage.removeItem("authToken"); // Remove auth token
+    await account.deleteSession('current'); // End the current session in Appwrite
+    localStorage.removeItem("authToken"); // Remove auth token from localStorage
+    localStorage.removeItem("userId");    // Remove user ID from localStorage
+    localStorage.removeItem("team");      // Remove team information from localStorage
+    console.log("User signed out successfully");
   } catch (error) {
+    console.error("Error during sign out:", error);
     throw error;
   }
 };

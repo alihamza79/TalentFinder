@@ -1,8 +1,10 @@
-'use client'
+'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
-import { useFormData } from "@/context/FormDataContext";  // Import the context hook
+import db from "@/appwrite/Services/dbServices";
+import * as sdk from "node-appwrite";
+import useAuth from "@/app/hooks/useAuth";  // Use the Auth hook to get userId
 
 const FormInfoBox = () => {
     const catOptions = [
@@ -16,7 +18,8 @@ const FormInfoBox = () => {
         { value: "Creative Art", label: "Creative Art" },
     ];
 
-    const { updateFormData } = useFormData();  // Hook for updating global state
+    const { user } = useAuth();  // Access the logged-in userId from global auth context
+    const [documentId, setDocumentId] = useState(null);  // To track if a document already exists
     const [formData, setFormData] = useState({
         companyName: "",
         email: "",
@@ -24,10 +27,39 @@ const FormInfoBox = () => {
         website: "",
         estSince: "",
         teamSize: "",
-        category: [catOptions[2]],  // Default selected category
+        category: [],  // Default selected category
         allowListing: "Yes",
         aboutCompany: "",
     });
+
+    // Fetch the document from Appwrite based on userId and populate the form
+    useEffect(() => {
+        if (user?.userId) {
+            db.company.list([sdk.Query.equal('userId', user.userId)])
+                .then((response) => {
+                    if (response.documents.length > 0) {
+                        const document = response.documents[0];
+                        setDocumentId(document.$id);  // Set the document ID
+                        setFormData({
+                            companyName: document.name || "",
+                            email: document.email || "",
+                            phone: document.phone || "",
+                            website: document.website || "",
+                            estSince: document.since || "",
+                            teamSize: document.companySize || "",
+                            category: document.categoryTags?.map(tag => ({ value: tag, label: tag })) || [],
+                            allowListing: document.allowListingVisibility || "Yes",
+                            aboutCompany: document.aboutCompany || "",
+                        });
+                    } else {
+                        console.error("No document found for this user.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching document:", error);
+                });
+        }
+    }, [user]);
 
     // Update state on form field change
     const handleInputChange = (e) => {
@@ -46,11 +78,43 @@ const FormInfoBox = () => {
         }));
     };
 
-    // Handle form submission (save data to global state)
+    // Handle form submission (save data to Appwrite)
     const handleSave = (e) => {
         e.preventDefault();
-        // console.log("Form Data Saved:", formData);
-        updateFormData('companyInfo', formData);  // Save the form data in the global state
+
+        const updatedData = {
+            name: formData.companyName,
+            email: formData.email,
+            phone: formData.phone,
+            website: formData.website,
+            since: formData.estSince,
+            companySize: formData.teamSize,
+            allowListingVisibility: formData.allowListing,
+            aboutCompany: formData.aboutCompany,
+            categoryTags: formData.category.map(cat => cat.value),
+            userId: user.userId  // Ensure userId is included in the document
+        };
+
+        if (documentId) {
+            // Update existing document
+            db.company.update(documentId, updatedData)
+                .then(() => {
+                    console.log("Document updated successfully");
+                })
+                .catch((error) => {
+                    console.error("Error updating document:", error);
+                });
+        } else {
+            // Create a new document
+            db.company.create(updatedData)
+                .then((newDoc) => {
+                    setDocumentId(newDoc.$id);
+                    console.log("Document created successfully");
+                })
+                .catch((error) => {
+                    console.error("Error creating document:", error);
+                });
+        }
     };
 
     return (
