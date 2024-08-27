@@ -1,12 +1,18 @@
-import { account, teams, jobSeekersTeamId, companiesTeamId } from "../config";
-import { databases, databaseId } from "../config";
-import db from "./dbServices";
-import { initializeCollections } from "../collections";
-import { ID } from "appwrite"; 
-import { createCompanyCollectionAndDocument , createJobSeekerCollectionAndDocument } from "@/global-functions/functions";
-import { collections } from "../collections";
+import * as sdk from "node-appwrite";
+import { account, companiesTeamId, jobSeekersTeamId, teams } from "../config";
+
+import {
+  createCompanyCollectionAndDocument,
+  createJobSeekerCollectionAndDocument,
+} from "@/global-functions/functions";
+import { ID } from "appwrite";
 // Function to register a new user and automatically assign to a team
-export async function registerUser(email, password, isEmployer, profileData = {}) {
+export async function registerUser(
+  email,
+  password,
+  isEmployer,
+  profileData = {}
+) {
   try {
     // Step 1: Register the user
     const user = await account.create(ID.unique(), email, password);
@@ -18,12 +24,12 @@ export async function registerUser(email, password, isEmployer, profileData = {}
     // Step 3: Assign the user to a team
     await assignUserToTeam(user.$id, email, isEmployer);
 
-      // Step 4: If the user is an employer, create the company collection and document, otherwise create JobSeeker collection
-      if (isEmployer) {
-        await createCompanyCollectionAndDocument(user.$id, profileData);
-      } else {
-        await createJobSeekerCollectionAndDocument(user.$id, profileData);
-      }
+    // Step 4: If the user is an employer, create the company collection and document, otherwise create JobSeeker collection
+    if (isEmployer) {
+      await createCompanyCollectionAndDocument(user.$id, profileData);
+    } else {
+      await createJobSeekerCollectionAndDocument(user.$id, profileData);
+    }
 
     return user;
   } catch (error) {
@@ -32,19 +38,89 @@ export async function registerUser(email, password, isEmployer, profileData = {}
   }
 }
 
-// Function to sign in the user by email and password, return user details, and team membership
+// Function to sign in the user by email and password, return user details and team membership
 export const signIn = async (email, password) => {
   try {
+    // Step 1: Authenticate the user (create a session)
     const session = await account.createEmailPasswordSession(email, password);
     localStorage.setItem("authToken", session.$id); // Store the session ID
-    return session;
+
+    // Step 2: Extract user ID from session
+    const userId = session.userId; // Ensure this is correct
+    console.log("User ID:", userId);
+
+    // Step 3: Define a helper function to check if the user is in a team
+    // Helper function to check if the user is in a team (handles pagination)
+    // Helper function to check if the user is in a team (handles pagination)
+    const isUserInTeam = async (teamId) => {
+      let isInTeam = false;
+      let page = 0; // Initialize the page number
+      const limit = 25; // Default limit per request
+
+      try {
+        while (true) {
+          
+
+          // Fetch the list of memberships with pagination
+          const response = await teams.listMemberships(teamId, [
+            sdk.Query.limit(limit),
+            sdk.Query.offset(page * limit),
+          ]);
+
+          const memberships = response.memberships;
+
+          // Check if the user is in the current batch of memberships
+          if (memberships.some((membership) => membership.userId === userId)) {
+            isInTeam = true;
+            break; // Stop further requests if user is found
+          }
+
+          // If there are fewer memberships than the limit, we've reached the end
+          if (memberships.length < limit) {
+            break;
+          }
+
+          // Otherwise, move to the next page
+          page += 1;
+        }
+      } catch (error) {
+        console.error(`Error fetching memberships for team ${teamId}:`, error);
+      }
+
+      return isInTeam;
+    };
+
+    //Step 4: Check if the user is in the job seekers team
+    const isInJobSeekersTeam = await isUserInTeam(jobSeekersTeamId);
+    if (isInJobSeekersTeam) {
+      return {
+        session,
+        userId,
+        team: "jobSeekers",
+      };
+    }
+
+    // Step 5: Check if the user is in the companies team
+    const isInCompaniesTeam = await isUserInTeam(companiesTeamId);
+    if (isInCompaniesTeam) {
+      return {
+        session,
+        userId,
+        team: "companies",
+      };
+    }
+
+    // If the user is not in any team, return null or appropriate response
+    return {
+      session,
+      userId,
+      team: null,
+    };
   } catch (error) {
     console.error("Login error:", error); // Log the error details
     throw error;
   }
 };
-
-
 // Function to assign the authenticated user to a team (can be called separately)
 export async function assignUserToTeam(userId, email, isEmployer) {
   try {

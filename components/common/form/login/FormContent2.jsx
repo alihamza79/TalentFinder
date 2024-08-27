@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import LoginWithSocial from "./LoginWithSocial";
-import { signInUser } from "@/appwrite/Services/authServices"; // Adjust the path as necessary
+import { signIn } from "@/appwrite/Services/authServices"; // Adjust the path as necessary
 
 const FormContent2 = () => {
   // State to hold form input values
@@ -19,10 +19,10 @@ const FormContent2 = () => {
 
     try {
       // Call the signInUser function from authServices
-      const response = await signInUser(email, password);
+      const response = await signIn(email, password);
 
       // Handle success (e.g., redirect to a dashboard or homepage)
-      console.log("User signed in successfully:", response.user);
+      console.log("User signed in successfully:", response.session);
       console.log("User team:", response.team);
 
       // Redirect user or handle further logic here
