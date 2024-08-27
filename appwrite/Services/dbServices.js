@@ -17,17 +17,17 @@ db.createCollection = async (collectionName, attributes = []) => {
       ID.unique(), // Unique ID for the collection
       collectionName,
       [
-        Permission.read(Role.any()),      // Public read
-        Permission.write(Role.any()),     // Public write
-        Permission.update(Role.any()),    // Public update
-        Permission.delete(Role.any())     // Public delete
+        Permission.read(Role.any()), // Public read
+        Permission.write(Role.any()), // Public write
+        Permission.update(Role.any()), // Public update
+        Permission.delete(Role.any()), // Public delete
       ]
     );
     console.log("Collection created successfully:", collection);
 
     for (const attr of attributes) {
       switch (attr.type) {
-        case 'string':
+        case "string":
           await databases.createStringAttribute(
             databaseId,
             collection.$id,
@@ -38,18 +38,18 @@ db.createCollection = async (collectionName, attributes = []) => {
             attr.array || false // Is it an array?
           );
           break;
-        case 'integer':
+        case "integer":
           await databases.createIntegerAttribute(
             databaseId,
             collection.$id,
             attr.name,
-            attr.min,        // Minimum value for integer
-            attr.max,        // Maximum value for integer
             attr.required,
+            attr.min,
+            attr.max,
             attr.array || false // Is it an array?
           );
           break;
-        case 'boolean':
+        case "boolean":
           await databases.createBooleanAttribute(
             databaseId,
             collection.$id,
@@ -58,28 +58,28 @@ db.createCollection = async (collectionName, attributes = []) => {
             attr.array || false // Is it an array?
           );
           break;
-        case 'float':
+        case "float":
           await databases.createFloatAttribute(
             databaseId,
             collection.$id,
             attr.name,
-            attr.min,        // Minimum value for float
-            attr.max,        // Maximum value for float
+            attr.min, // Minimum value for float
+            attr.max, // Maximum value for float
             attr.required,
             attr.array || false // Is it an array?
           );
           break;
-        case 'enum':
+        case "enum":
           await databases.createEnumAttribute(
             databaseId,
             collection.$id,
             attr.name,
-            attr.elements,   // List of possible enum values
+            attr.elements, // List of possible enum values
             attr.required,
             attr.array || false // Is it an array?
           );
           break;
-        case 'email':
+        case "email":
           await databases.createEmailAttribute(
             databaseId,
             collection.$id,
@@ -88,7 +88,7 @@ db.createCollection = async (collectionName, attributes = []) => {
             attr.array || false // Is it an array?
           );
           break;
-        case 'url':
+        case "url":
           await databases.createUrlAttribute(
             databaseId,
             collection.$id,
@@ -109,8 +109,6 @@ db.createCollection = async (collectionName, attributes = []) => {
     throw error;
   }
 };
-
-
 
 collections.forEach((col) => {
   db[col.name] = {
