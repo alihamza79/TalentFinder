@@ -44,14 +44,10 @@ export const signIn = async (email, password) => {
     // Step 1: Authenticate the user (create a session)
     const session = await account.createEmailPasswordSession(email, password);
     localStorage.setItem("authToken", session.$id); // Store the session ID
-
+    localStorage.setItem("userId", session.userId);
     // Step 2: Extract user ID from session
     const userId = session.userId; // Ensure this is correct
     console.log("User ID:", userId);
-
-    // Step 3: Define a helper function to check if the user is in a team
-    // Helper function to check if the user is in a team (handles pagination)
-    // Helper function to check if the user is in a team (handles pagination)
     const isUserInTeam = async (teamId) => {
       let isInTeam = false;
       let page = 0; // Initialize the page number
@@ -90,31 +86,22 @@ export const signIn = async (email, password) => {
       return isInTeam;
     };
 
-    //Step 4: Check if the user is in the job seekers team
     const isInJobSeekersTeam = await isUserInTeam(jobSeekersTeamId);
-    if (isInJobSeekersTeam) {
-      return {
-        session,
-        userId,
-        team: "jobSeekers",
-      };
-    }
-
-    // Step 5: Check if the user is in the companies team
     const isInCompaniesTeam = await isUserInTeam(companiesTeamId);
-    if (isInCompaniesTeam) {
-      return {
-        session,
-        userId,
-        team: "companies",
-      };
+
+    let team = null;
+    if (isInJobSeekersTeam) {
+      team = "jobSeekers";
+    } else if (isInCompaniesTeam) {
+      team = "companies";
     }
 
-    // If the user is not in any team, return null or appropriate response
+    localStorage.setItem("team", team); // Store team information
+
     return {
       session,
       userId,
-      team: null,
+      team,
     };
   } catch (error) {
     console.error("Login error:", error); // Log the error details
@@ -160,22 +147,39 @@ export const signOutUser = async () => {
 // Function to get the currently authenticated user
 export const getCurrentUser = async () => {
   try {
-    const user = await account.get(); // Get the current user
-    return user;
+    const userId = localStorage.getItem("userId");
+    const team = localStorage.getItem("team");
+
+    if (!userId || !team) {
+      console.error("User ID or team information is missing in localStorage");
+      throw new Error("User information is missing");
+    }
+
+    return { userId, team };
   } catch (error) {
+    console.error("Error fetching current user from localStorage:", error);
     throw error;
   }
 };
 
+
+
 // Function to check if the user is authenticated
 export const checkAuth = async () => {
   try {
-    await account.get(); // If no error is thrown, the user is authenticated
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      return false;
+    }
+   
     return true;
   } catch (error) {
-    return false; // User is not authenticated
+    console.error("Error during authentication check:", error);
+    return false;
   }
 };
+
+
 
 // Function to send a password recovery email
 export const sendPasswordRecoveryEmail = async (email) => {
