@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import db from "@/appwrite/Services/dbServices";
 import * as sdk from "node-appwrite";
 import useAuth from "@/app/hooks/useAuth";  // Use the Auth hook to get userId
+import initializeDB from "@/appwrite/Services/dbServices";
 
 const SocialNetworkBox = () => {
     const { user } = useAuth();  // Access the logged-in userId from global auth context
+    const [db, setDb] = useState(null);
     const [documentId, setDocumentId] = useState(null);  // Track document ID
     const [socialInfo, setSocialInfo] = useState({
         facebook: '',
@@ -17,26 +18,33 @@ const SocialNetworkBox = () => {
 
     // Fetch the document from Appwrite based on userId and populate the form
     useEffect(() => {
-        if (user?.userId) {
-            db.company.list([sdk.Query.equal('userId', user.userId)])
-                .then((response) => {
-                    if (response.documents.length > 0) {
-                        const document = response.documents[0];
-                        setDocumentId(document.$id);
-                        setSocialInfo({
-                            facebook: document.socials?.[0] || '',
-                            twitter: document.socials?.[1] || '',
-                            linkedin: document.socials?.[2] || '',
-                            googlePlus: document.socials?.[3] || '',
-                        });
-                    } else {
-                        console.error("No document found for this user.");
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error fetching document:", error);
-                });
-        }
+        const fetchData = async () => {
+            const initializedDb = await initializeDB();  // Await the database initialization
+            setDb(initializedDb);  // Set the db state
+            
+            if (user?.userId && initializedDb) {
+                initializedDb.company?.list([sdk.Query.equal('userId', user.userId)])
+                    .then((response) => {
+                        if (response.documents.length > 0) {
+                            const document = response.documents[0];
+                            setDocumentId(document.$id);
+                            setSocialInfo({
+                                facebook: document.socials?.[0] || '',
+                                twitter: document.socials?.[1] || '',
+                                linkedin: document.socials?.[2] || '',
+                                googlePlus: document.socials?.[3] || '',
+                            });
+                        } else {
+                            console.error("No document found for this user.");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching document:", error);
+                    });
+            }
+        };
+
+        fetchData();
     }, [user]);
 
     // Update state on form field change
@@ -59,18 +67,18 @@ const SocialNetworkBox = () => {
             userId: user.userId  // Ensure userId is included in the document
         };
 
-        if (documentId) {
+        if (documentId && db) {
             // Update existing document
-            db.company.update(documentId, updatedData)
+            db.company?.update(documentId, updatedData)
                 .then(() => {
                     console.log("Social information updated successfully");
                 })
                 .catch((error) => {
                     console.error("Error updating social information:", error);
                 });
-        } else {
+        } else if (db) {
             // Create a new document
-            db.company.create(updatedData)
+            db.company?.create(updatedData)
                 .then((newDoc) => {
                     setDocumentId(newDoc.$id);
                     console.log("Social information created successfully");

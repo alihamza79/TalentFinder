@@ -1,12 +1,14 @@
-import { initializeCollections,collections } from "@/appwrite/collections";
-import { databases,databaseId } from "@/appwrite/config";
+import {  collections } from "@/appwrite/collections";
+import { databases, databaseId } from "@/appwrite/config";
 import { ID, Permission, Role } from "appwrite";
-import db from "@/appwrite/Services/dbServices";
-
+import initializeDB from "@/appwrite/Services/dbServices";
 import { teams } from "@/appwrite/config";
+
 // Function to create a company collection and insert a document
 export const createCompanyCollectionAndDocument = async (userId, companyData) => {
   try {
+    const db = await initializeDB();  // Initialize the database
+
     // Check if the company collection already exists
     const existingCollections = await databases.listCollections(databaseId);
     const companyCollectionExists = existingCollections.collections.some(
@@ -59,7 +61,6 @@ export const createCompanyCollectionAndDocument = async (userId, companyData) =>
       }
 
       // Re-initialize collections so the new collection is available
-      await initializeCollections();
       console.log("Company collection created and collections re-initialized.");
     }
 
@@ -85,62 +86,65 @@ export const createCompanyCollectionAndDocument = async (userId, companyData) =>
   }
 };
 
-
 // Function to create a JobSeeker collection and insert a document
 export const createJobSeekerCollectionAndDocument = async (userId, jobSeekerData) => {
-    try {
-      const existingCollections = await databases.listCollections(databaseId);
-      const jobSeekerCollectionExists = existingCollections.collections.some(
-        (collection) => collection.name === "JobSeekers"
-      );
-  
-      if (!jobSeekerCollectionExists) {
-        const jobSeekerAttributes = [
-          { type: "string", name: "userId", required: true, size: 500 },
-          { type: "string", name: "name", required: false, size: 500 },
-          { type: "string", name: "skills", required: false, array: true, size: 500 },
-          { type: "string", name: "phone", required: false, size: 20 },
-          { type: "string", name: "email", required: false, size: 500 },
-          { type: "string", name: "experience", required: false, size: 1000 },
-          { type: "string", name: "gender", required: false, size: 100 },
-          { type: "string", name: "salaryRate", required: false, size: 100 },
-          { type: "integer", name: "age", required: false },
-          { type: "string", name: "educationLevels", required: false, size: 500 },
-          { type: "string", name: "languages", required: false, size: 500 },
-          { type: "string", name: "categoryTags", required: false, array: true, size: 500 },
-          { type: "string", name: "allowListingVisibility", required: false, size: 100 },
-          { type: "string", name: "description", required: false, size: 1000 },
-        ];
-  
-        await db.createCollection("JobSeekers", jobSeekerAttributes);
-  
-        // Re-initialize collections so the new collection is available
-        await initializeCollections();
-      }
-  
-      const jobSeekerCollection = collections.find((col) => col.name === "JobSeekers");
-      if (!db.JobSeekers) {
-        db.JobSeekers = {
-          create: async (payload, id = ID.unique()) =>
-            await databases.createDocument(databaseId, jobSeekerCollection.id, id, payload),
-        };
-      }
-  
-      const jobSeekerDocumentPayload = { ...jobSeekerData, userId };
-      await db.JobSeekers.create(jobSeekerDocumentPayload, ID.unique());
-    } catch (error) {
-      console.error("Error creating JobSeeker collection or document:", error);
-      throw error;
-    }
-  };
+  try {
+    const db = await initializeDB();  // Initialize the database
 
+    const existingCollections = await databases.listCollections(databaseId);
+    const jobSeekerCollectionExists = existingCollections.collections.some(
+      (collection) => collection.name === "JobSeekers"
+    );
+
+    if (!jobSeekerCollectionExists) {
+      const jobSeekerAttributes = [
+        { type: "string", name: "userId", required: true, size: 500 },
+        { type: "string", name: "name", required: false, size: 500 },
+        { type: "string", name: "skills", required: false, array: true, size: 500 },
+        { type: "string", name: "phone", required: false, size: 20 },
+        { type: "string", name: "email", required: false, size: 500 },
+        { type: "string", name: "experience", required: false, size: 1000 },
+        { type: "string", name: "gender", required: false, size: 100 },
+        { type: "string", name: "salaryRate", required: false, size: 100 },
+        { type: "integer", name: "age", required: false },
+        { type: "string", name: "educationLevels", required: false, size: 500 },
+        { type: "string", name: "languages", required: false, size: 500 },
+        { type: "string", name: "categoryTags", required: false, array: true, size: 500 },
+        { type: "string", name: "allowListingVisibility", required: false, size: 100 },
+        { type: "string", name: "description", required: false, size: 1000 },
+      ];
+
+      await db.createCollection("JobSeekers", jobSeekerAttributes);
+
+      // Re-initialize collections so the new collection is available
+    }
+
+    const jobSeekerCollection = collections.find((col) => col.name === "JobSeekers");
+    if (!db.JobSeekers) {
+      db.JobSeekers = {
+        create: async (payload, id = ID.unique()) =>
+          await databases.createDocument(databaseId, jobSeekerCollection.id, id, payload),
+      };
+    }
+
+    const jobSeekerDocumentPayload = { ...jobSeekerData, userId };
+    await db.JobSeekers.create(jobSeekerDocumentPayload, ID.unique());
+
+    console.log("JobSeeker document created successfully.");
+  } catch (error) {
+    console.error("Error creating JobSeeker collection or document:", error);
+    throw error;
+  }
+};
 
 // Function to fetch all teams
 export const fetchTeams = async () => {
   try {
+    const db = await initializeDB();  // Initialize the database
+
     // Use the teams.list() method to get all teams
     const response = await teams.list();
-    
+
     // Return the list of teams
     return response.teams;
   } catch (error) {
@@ -150,8 +154,47 @@ export const fetchTeams = async () => {
 };
 
 // Example of how to use the fetchTeams function
-fetchTeams().then((teamList) => {
-  console.log("Teams fetched successfully:", teamList);
-}).catch((error) => {
-  console.error("Error fetching teams:", error);
-});
+fetchTeams()
+  .then((teamList) => {
+    console.log("Teams fetched successfully:", teamList);
+  })
+  .catch((error) => {
+    console.error("Error fetching teams:", error);
+  });
+
+// Function to create the Jobs collection if it doesn't exist
+// Function to create the Jobs collection if it doesn't exist
+export const createJobsCollectionIfNotExists = async () => {
+  try {
+    const db = await initializeDB();  // Initialize the database
+
+    // Check if the Jobs collection already exists
+    const existingCollections = await databases.listCollections(databaseId);
+    const jobsCollectionExists = existingCollections.collections.some(
+      (collection) => collection.name === "Jobs"
+    );
+    console.log(jobsCollectionExists)
+
+    // If the Jobs collection doesn't exist, create it
+    if (!jobsCollectionExists) {
+      console.log("Creating Jobs collection...");
+
+      const jobAttributes = [
+        { type: "string", name: "userId", required: true, size: 500 },
+        { type: "datetime", name: "creationTime", required: false },  // No default value, so pass null
+        { type: "string", name: "jobTitle", required: false, size: 500 },
+        { type: "string", name: "jobDescription", required: false, size: 1000 },
+        { type: "string", name: "jobType", required: false, size: 100 },
+        { type: "string", name: "categoryTags", required: false, array: true, size: 500 },
+        { type: "string", name: "salary", required: false, size: 100 },
+      ];
+
+      await db.createCollection("Jobs", jobAttributes);
+
+    }
+    } catch (error) {
+      console.error("Error creating Jobs collection:", error);
+      throw error;
+    }
+  };
+  

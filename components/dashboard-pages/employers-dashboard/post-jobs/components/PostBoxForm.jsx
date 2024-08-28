@@ -1,223 +1,159 @@
+'use client';
 
-'use client'
-
-import Map from "../../../Map";
+import { useState, useEffect } from "react";
 import Select from "react-select";
-
+import { createJobsCollectionIfNotExists } from "@/global-functions/functions";
+import useAuth from "@/app/hooks/useAuth";  // Use the Auth hook to get userId
+import initializeDB from "@/appwrite/Services/dbServices";
+import { ID } from "appwrite";
 const PostBoxForm = () => {
+  // const db = await initializeDB()
   const specialisms = [
     { value: "Banking", label: "Banking" },
     { value: "Digital & Creative", label: "Digital & Creative" },
     { value: "Retail", label: "Retail" },
     { value: "Human Resources", label: "Human Resources" },
-    { value: "Managemnet", label: "Managemnet" },
+    { value: "Management", label: "Management" },
     { value: "Accounting & Finance", label: "Accounting & Finance" },
     { value: "Digital", label: "Digital" },
     { value: "Creative Art", label: "Creative Art" },
   ];
 
+  const { user } = useAuth();  // Access the logged-in userId from global auth context
+  const [db, setDb] = useState(null);
+
+  const [jobData, setJobData] = useState({
+    jobTitle: "",
+    jobDescription: "",
+    jobType: "",
+    categoryTags: [],
+    salary: "",
+  });
+
+  // Ensure the Jobs collection exists
+  useEffect(() => {
+    const fetchDBData = async ()=>{
+      const initializedDb = await initializeDB();  // Await the database initialization
+      setDb(initializedDb);  // Set the db state
+    }
+
+    createJobsCollectionIfNotExists();
+    fetchDBData();
+  }, []);
+
+  // Handle form field changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setJobData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Update category tags selection
+  const handleCategoryChange = (selectedOptions) => {
+    setJobData((prevData) => ({
+      ...prevData,
+      categoryTags: selectedOptions.map(option => option.value),
+    }));
+  };
+
+  // Handle form submission
+  const handlePostJob = async (e) => {
+    e.preventDefault();
+    if (user.userId) {
+      try {
+        const jobDocumentPayload = { 
+          ...jobData, 
+          userId: user.userId, 
+          creationTime: new Date().toISOString() 
+        };
+        await db.Jobs.create(jobDocumentPayload, ID.unique());
+        console.log("Job posted successfully.");
+      } catch (error) {
+        console.error("Error posting job:", error);
+      }
+    } else {
+      console.error("User ID not found.");
+    }
+  };
+
   return (
-    <form className="default-form">
+    <form className="default-form" onSubmit={handlePostJob}>
       <div className="row">
-        {/* <!-- Input --> */}
+        {/* Job Title */}
         <div className="form-group col-lg-12 col-md-12">
           <label>Job Title</label>
-          <input type="text" name="name" placeholder="Title" />
+          <input 
+            type="text" 
+            name="jobTitle" 
+            placeholder="Title" 
+            value={jobData.jobTitle}
+            onChange={handleInputChange}
+            required
+          />
         </div>
 
-        {/* <!-- About Company --> */}
+        {/* Job Description */}
         <div className="form-group col-lg-12 col-md-12">
           <label>Job Description</label>
-          <textarea placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"></textarea>
+          <textarea 
+            name="jobDescription"
+            placeholder="Job Description"
+            value={jobData.jobDescription}
+            onChange={handleInputChange}
+            required
+          ></textarea>
         </div>
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Email Address</label>
-          <input type="text" name="name" placeholder="" />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Username</label>
-          <input type="text" name="name" placeholder="" />
-        </div>
-
-        {/* <!-- Search Select --> */}
+        {/* Category Tags */}
         <div className="form-group col-lg-6 col-md-12">
           <label>Specialisms </label>
           <Select
-            defaultValue={[specialisms[2]]}
+            value={specialisms.filter(option => jobData.categoryTags.includes(option.value))}
             isMulti
-            name="colors"
+            name="categoryTags"
             options={specialisms}
             className="basic-multi-select"
             classNamePrefix="select"
+            onChange={handleCategoryChange}
           />
         </div>
 
+        {/* Job Type */}
         <div className="form-group col-lg-6 col-md-12">
           <label>Job Type</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Banking</option>
-            <option>Digital & Creative</option>
-            <option>Retail</option>
-            <option>Human Resources</option>
-            <option>Management</option>
+          <select 
+            name="jobType" 
+            className="chosen-single form-select" 
+            value={jobData.jobType}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="">Select</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Full Time">Full Time</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Remote">Remote</option>
           </select>
         </div>
 
-        {/* <!-- Input --> */}
+        {/* Salary */}
         <div className="form-group col-lg-6 col-md-12">
           <label>Offered Salary</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>$1500</option>
-            <option>$2000</option>
-            <option>$2500</option>
-            <option>$3500</option>
-            <option>$4500</option>
-            <option>$5000</option>
-          </select>
+          <input 
+            type="text" 
+            name="salary" 
+            placeholder="$1000" 
+            value={jobData.salary}
+            onChange={handleInputChange}
+            required
+          />       
         </div>
 
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Career Level</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Banking</option>
-            <option>Digital & Creative</option>
-            <option>Retail</option>
-            <option>Human Resources</option>
-            <option>Management</option>
-          </select>
-        </div>
-
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Experience</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Banking</option>
-            <option>Digital & Creative</option>
-            <option>Retail</option>
-            <option>Human Resources</option>
-            <option>Management</option>
-          </select>
-        </div>
-
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Gender</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Industry</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Banking</option>
-            <option>Digital & Creative</option>
-            <option>Retail</option>
-            <option>Human Resources</option>
-            <option>Management</option>
-          </select>
-        </div>
-
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Qualification</label>
-          <select className="chosen-single form-select">
-            <option>Select</option>
-            <option>Banking</option>
-            <option>Digital & Creative</option>
-            <option>Retail</option>
-            <option>Human Resources</option>
-            <option>Management</option>
-          </select>
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-12 col-md-12">
-          <label>Application Deadline Date</label>
-          <input type="text" name="name" placeholder="06.04.2020" />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Country</label>
-          <select className="chosen-single form-select">
-            <option>Australia</option>
-            <option>Pakistan</option>
-            <option>Chaina</option>
-            <option>Japan</option>
-            <option>India</option>
-          </select>
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>City</label>
-          <select className="chosen-single form-select">
-            <option>Melbourne</option>
-            <option>Pakistan</option>
-            <option>Chaina</option>
-            <option>Japan</option>
-            <option>India</option>
-          </select>
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-12 col-md-12">
-          <label>Complete Address</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="329 Queensberry Street, North Melbourne VIC 3051, Australia."
-          />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Find On Map</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="329 Queensberry Street, North Melbourne VIC 3051, Australia."
-          />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-3 col-md-12">
-          <label>Latitude</label>
-          <input type="text" name="name" placeholder="Melbourne" />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-3 col-md-12">
-          <label>Longitude</label>
-          <input type="text" name="name" placeholder="Melbourne" />
-        </div>
-
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-12 col-md-12">
-          <button className="theme-btn btn-style-three">Search Location</button>
-        </div>
-
-        <div className="form-group col-lg-12 col-md-12">
-          <div className="map-outer">
-            <div style={{ height: "420px", width: "100%" }}>
-              <Map />
-            </div>
-          </div>
-        </div>
-
-        {/* <!-- Input --> */}
+        {/* Post Job Button */}
         <div className="form-group col-lg-12 col-md-12 text-right">
-          <button className="theme-btn btn-style-one">Next</button>
+          <button className="theme-btn btn-style-one" type="submit">Post Job</button>
         </div>
       </div>
     </form>
