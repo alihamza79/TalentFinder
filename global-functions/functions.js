@@ -5,7 +5,10 @@ import initializeDB from "@/appwrite/Services/dbServices";
 import { teams } from "@/appwrite/config";
 
 // Function to create a company collection and insert a document
-export const createCompanyCollectionAndDocument = async (userId, companyData) => {
+export const createCompanyCollectionAndDocument = async (
+  userId,
+  companyData
+) => {
   try {
     const db = await initializeDB();  // Initialize the database
 
@@ -24,10 +27,27 @@ export const createCompanyCollectionAndDocument = async (userId, companyData) =>
         { type: "string", name: "website", required: false, size: 500 },
         { type: "string", name: "since", required: false, size: 20 },
         { type: "string", name: "companySize", required: false, size: 100 },
-        { type: "string", name: "allowListingVisibility", required: false, size: 10 },
+        {
+          type: "string",
+          name: "allowListingVisibility",
+          required: false,
+          size: 10,
+        },
         { type: "string", name: "aboutCompany", required: false, size: 1000 },
-        { type: "string", name: "categoryTags", required: false, array: true, size: 500 },
-        { type: "string", name: "socials", required: false, array: true, size: 500 },
+        {
+          type: "string",
+          name: "categoryTags",
+          required: false,
+          array: true,
+          size: 500,
+        },
+        {
+          type: "string",
+          name: "socials",
+          required: false,
+          array: true,
+          size: 500,
+        },
         { type: "string", name: "city", required: false, size: 500 },
         { type: "string", name: "address", required: false, size: 500 },
         { type: "string", name: "country", required: false, size: 100 },
@@ -43,7 +63,7 @@ export const createCompanyCollectionAndDocument = async (userId, companyData) =>
           Permission.read(Role.any()),
           Permission.write(Role.any()),
           Permission.update(Role.any()),
-          Permission.delete(Role.any())
+          Permission.delete(Role.any()),
         ]
       );
 
@@ -71,7 +91,12 @@ export const createCompanyCollectionAndDocument = async (userId, companyData) =>
     if (!db.company) {
       db.company = {
         create: async (payload, id = ID.unique()) =>
-          await databases.createDocument(databaseId, companyCollection.id, id, payload),
+          await databases.createDocument(
+            databaseId,
+            companyCollection.id,
+            id,
+            payload
+          ),
       };
     }
 
