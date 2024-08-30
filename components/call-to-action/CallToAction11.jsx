@@ -12,14 +12,14 @@ const CallToAction11 = () => {
           {/* End bg-image */}
 
           <div className="row align-items-center justify-content-between">
-            <div className="col-lg-4 offset-lg-1">
+            <div className="col-lg-6 offset-lg-1">
               <div className="sec-title pb-16">
-                <h2 className="">Looking To Post a Job</h2>
-                <div className="text">
+                <h2 className="">Qualified workforce meets global companies!</h2>
+                {/* <div className="text">
                   Advertise your jobs to millions of monthly
                   <br /> users and search 15.8 million CVs in our
                   <br /> database.
-                </div>
+                </div> */}
 
                 <div className="mt-20">
                   <Link

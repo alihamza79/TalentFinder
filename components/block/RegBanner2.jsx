@@ -5,9 +5,9 @@ const RegBanner2 = () => {
   const regBannerContent = [
     {
       id: 1,
-      name: "Employers",
-      text: ` Sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt. Labore et dolore nostrud exercitation.`,
+      name: "Skills",
+      text: `Find suitable jobs and strong employers, apply to them or let companies find you easily and conveniently.
+With Talendox we offer you a first-class service - personalized and individual.`,
       avatar: "/images/resource/employ.png",
       bannerClass: "banner-style-one",
       width: "221",
@@ -15,9 +15,9 @@ const RegBanner2 = () => {
     },
     {
       id: 2,
-      name: "Candidate",
-      text: ` Sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt. Labore et dolore nostrud exercitation.`,
+      name: "Companies",
+      text: `Reach a new, international target group of qualified and certified experts. Position yourself with a perfect company profile and job postings.
+Our employees will be happy to support you.`,
       avatar: "/images/resource/candidate.png",
       bannerClass: "banner-style-two",
       width: "207",
@@ -32,21 +32,21 @@ const RegBanner2 = () => {
           key={item.id}
         >
           <div className="inner-box">
-            <div className="content">
+            <div className="">
               <h3>{item.name}</h3>
               <p>{item.text}</p>
               <Link href="/register" className="theme-btn btn-style-five">
                 Register Account
               </Link>
             </div>
-            <figure className="image">
+            {/* <figure className="image">
               <Image
                 width={item.width}
                 height={item.height}
                 src={item.avatar}
                 alt="resource"
               />
-            </figure>
+            </figure> */}
           </div>
         </div>
       ))}

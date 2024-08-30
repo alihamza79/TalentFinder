@@ -10,25 +10,26 @@ const About2 = () => {
         <div className="inner-column" data-aos="fade-left">
           <div className="sec-title">
             <h2>
-              Get applications from the <br />
-              world best talents.
+              DIGI-X-TECH
             </h2>
             <div className="text">
-              Search all the open positions on the web. Get your own
-              personalized salary estimate. Read reviews on over 600,000
-              companies worldwide.
+            With the Talendox portal, companies reach a new and highly interesting target group, the qualified talents we have vetted find first-class employers and our team accompanies you throughout the entire process. More than just a personalized, individual and simple job search portal.
+
+            </div>
+            <div className="font-semibold mt-6">
+            A holistic solution. A single portal
             </div>
           </div>
-          <ul className="list-style-one">
+          {/* <ul className="list-style-one">
             <li>Bring to the table win-win survival</li>
             <li>Capitalize on low hanging fruit to identify</li>
             <li>But I must explain to you how all this</li>
-          </ul>
+          </ul> */}
           <Link
             href="/employers-dashboard/post-jobs"
             className="theme-btn btn-style-one"
           >
-            Post a Job
+            Sign Up Now!
           </Link>
         </div>
       </div>
@@ -46,14 +47,14 @@ const About2 = () => {
         </figure>
 
         {/* <!-- Count Employers --> */}
-        <div className="applicants-list" data-aos="fade-up">
+        {/* <div className="applicants-list" data-aos="fade-up">
           <div className="title-box">
             <h4>Applicants List</h4>
           </div>
           <ul className="applicants">
             <ApplicantsList />
           </ul>
-        </div>
+        </div> */}
       </div>
       {/* End image-column */}
     </>

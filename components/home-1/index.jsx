@@ -10,6 +10,14 @@ import Funfact from "../fun-fact-counter/Funfact";
 import DefaulHeader2 from "../header/DefaulHeader2";
 import MobileMenu from "../header/MobileMenu";
 import Hero3 from "../hero/hero-3";
+import RegBanner2 from "../block/RegBanner2";
+import Block8 from "../block/Block8";
+import CallToAction11 from "../call-to-action/CallToAction11";
+import About2 from "../about/About2";
+import Testimonial3 from "../testimonial/Testimonial3";
+import FaqChild from "../pages-menu/faq/FaqChild";
+
+
 import JobCategorie1 from "../job-categories/JobCategorie1";
 import JobFeatured1 from "../job-featured/JobFeatured1";
 import Testimonial from "../testimonial/Testimonial";
@@ -32,6 +40,85 @@ const index = () => {
 
       <Hero3 />
       {/* End Hero Section */}
+
+
+      <section className="registeration-banners">
+        <div className="auto-container">
+          <div className="row" data-aos="fade-up">
+            <RegBanner2 />
+          </div>
+        </div>
+      </section>
+      {/* <!-- End Skills/Companies Banners -->  */}
+
+
+
+      <section className="layout-pt-120 layout-pb-120 ">
+        <div className="auto-container">
+          <div className="sec-title text-center">
+            <h2>Our Services</h2>
+            {/* <div className="text">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+              eiusmod
+            </div> */}
+          </div>
+          {/* End sec-title */}
+
+          <div className="row grid-base pt-50 items-center" data-aos="fade-up">
+            <Block8 />
+            {/* <!-- Work Block --> */}
+          </div>
+        </div>
+      </section>
+      {/* <!-- End Services Section --> */}
+
+
+      <section className="about-section-two">
+        <div className="auto-container">
+          <div className="row">
+            <About2 />
+          </div>
+        </div>
+      </section>
+      {/* <!-- End About Section --> */}
+
+      <section className="testimonial-section-three">
+        <div className="auto-container">
+          {/* <!-- Sec Title --> */}
+          <div className="sec-title text-center text-5xl font-medium">
+           Holistic solutions are needed.
+            {/* <div className="text">
+              Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
+            </div> */}
+          </div>
+          {/* End sec-title */}
+
+          <div className="carousel-outer" data-aos="fade-up">
+            {/* <!-- Testimonial Carousel --> */}
+            <div className="testimonial-carousel">
+              <Testimonial3 />
+            </div>
+          </div>
+        </div>
+        {/* End auto-container */}
+      </section>
+
+      <CallToAction11 />
+      {/* <!-- End CallToAction Section --> */}
+
+
+      <section className="faqs-section">
+        <div className="auto-container">
+          <div className="sec-title text-center">
+            <h2>Frequently Asked Questions</h2>
+          </div>
+          {/* <!--Accordian Box--> */}
+          <ul className="accordion-box">
+            <FaqChild />
+          </ul>
+        </div>
+      </section>
+      {/* <!-- End Faqs Section --> */}
 
       <section className="job-categories ui-job-categories">
         <div className="auto-container">

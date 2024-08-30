@@ -1,59 +1,27 @@
 import Link from "next/link";
 
-const AddBlock = () => {
-  const blockContent = [
-    {
-      id: 1,
-      bgImageName: "ads-bg-1",
-      title: (
-        <>
-          {" "}
-          <span>Recruiting </span>Now
-        </>
-      ),
-    },
-    {
-      id: 2,
-      bgImageName: "ads-bg-2",
-      title: (
-        <>
-          {" "}
-          <span>Membership </span>Opportunities
-        </>
-      ),
-    },
-    {
-      id: 3,
-      bgImageName: "ads-bg-3",
-      title: (
-        <>
-          {" "}
-          <span>Post a </span>Vacancy
-        </>
-      ),
-    },
-  ];
+const AddBlock = ({ items }) => {
   return (
-    <>
-      {blockContent.map((item) => (
+    <div className="flex flex-wrap ">
+      {items.map((item) => (
         <div
-          className="advrtise-block col-lg-4 col-md-6 col-sm-12"
+          className="advrtise-block w-full md:w-1/2 lg:w-1/3 px-2 mb-4"
           key={item.id}
         >
           <div
-            className="inner-box"
+            className="inner-box bg-blue-50 h-full flex flex-col "
             style={{
-              backgroundImage: `url(/images/resource/${item.bgImageName}.png)`,
+              // backgroundImage: `url(/images/resource/${item.bgImageName}.png)`,
             }}
           >
             <h4>{item.title}</h4>
-            <Link href="/register" className="theme-btn btn-style-one">
-              View All
-            </Link>
+            <div className="mt-2 flex-grow">
+              <p>{item.content}</p>
+            </div>
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 
