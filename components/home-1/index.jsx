@@ -129,7 +129,7 @@ const index = () => {
           </div>
           <div className="btn-box text-center">
             <Link
-              href="/job-list-v1"
+              href="/candidates-list-v3"
               className="theme-btn btn-style-one bg-blue"
             >
               <span className="btn-title">Load More Candidates</span>
