@@ -14,7 +14,7 @@ const faqData = [
     id: 'collapseTwo',
     question: "What is the DIGI-X-TECH Portal?",
     answer: [
-      "DIGI-X-TECH portalı, iş ilanlarına ve şirketlere erişmenizi sağlar ve başvurmanıza veya şirketler tarafından bulunmanıza olanak tanır. Profil hizmetimiz ile profilinizi optimize ediyor ve profesyonel bir tanıtım videonuzu oluşturuyoruz."
+      "DIGI-X-TECH portal, iş ilanlarina ve şirketlere erişmenizi sağlar ve başvurmanıza veya şirketler tarafından bulunmanıza olanak tanır. Profil hizmetimiz ile profilinizi optimize ediyor ve profesyonel bir tanıtım videonuzu oluşturuyoruz."
     ]
   },
   {
@@ -61,6 +61,7 @@ const faqData = [
   }
 ];
 
+
 const FaqChild = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -70,7 +71,7 @@ const FaqChild = () => {
 
   return (
     <div className="accordion" id="accordionExample">
-      {faqData.map((faq, index) => (
+      {faqData?.map((faq, index) => (
         <div key={index} className="accordion-item accordion block active-block">
           <h2 className="accordion-header">
             <button
@@ -88,7 +89,7 @@ const FaqChild = () => {
             aria-labelledby={`heading${faq.id}`}
           >
             <div className="accordion-body">
-              {faq.answer.map((paragraph, i) => (
+              {faq.answer?.map((paragraph, i) => (
                 <div key={i} className="content">
                 <p >{paragraph}</p>
                 </div>
