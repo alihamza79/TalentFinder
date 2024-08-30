@@ -188,8 +188,16 @@ fetchTeams()
   });
 
 // Function to create the Jobs collection if it doesn't exist
-// Function to create the Jobs collection if it doesn't exist
+let isCreatingJobsCollection = false;
+
 export const createJobsCollectionIfNotExists = async () => {
+  if (isCreatingJobsCollection) {
+    console.log("Jobs collection creation is already in progress.");
+    return;
+  }
+
+  isCreatingJobsCollection = true;
+
   try {
     const db = await initializeDB();  // Initialize the database
 
@@ -198,9 +206,7 @@ export const createJobsCollectionIfNotExists = async () => {
     const jobsCollectionExists = existingCollections.collections.some(
       (collection) => collection.name === "Jobs"
     );
-    console.log(jobsCollectionExists)
-
-    // If the Jobs collection doesn't exist, create it
+    
     if (!jobsCollectionExists) {
       console.log("Creating Jobs collection...");
 
@@ -215,11 +221,14 @@ export const createJobsCollectionIfNotExists = async () => {
       ];
 
       await db.createCollection("Jobs", jobAttributes);
-
+      console.log("Jobs collection created successfully.");
+    } else {
+      console.log("Jobs collection already exists.");
     }
-    } catch (error) {
-      console.error("Error creating Jobs collection:", error);
-      throw error;
-    }
-  };
-  
+  } catch (error) {
+    console.error("Error creating Jobs collection:", error);
+    throw error;
+  } finally {
+    isCreatingJobsCollection = false;  // Reset the flag after creation process completes
+  }
+};
