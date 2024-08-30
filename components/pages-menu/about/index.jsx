@@ -18,7 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const index = () => {
-  const blockContent = [
+  const missionVisionValues = [
     {
       id: 1,
       bgImageName: "ads-bg-1",
@@ -84,7 +84,7 @@ const index = () => {
       <section className="ads-section">
         <div className="auto-container">
           <div className="row" data-aos="fade-up">
-            <AddBlock items={blockContent}/>
+            <AddBlock items={missionVisionValues}/>
             {/* <!-- Ads Block --> */}
           </div>
         </div>

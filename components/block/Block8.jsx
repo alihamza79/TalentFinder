@@ -40,7 +40,7 @@ const Block8 = () => {
   return (
     <>
       {blockContent.map((item) => (
-        <div className="col-lg-3 col-md-6 col-sm-12" key={item.id}>
+        <div className="col-lg-4 col-md-6 col-sm-12" key={item.id}>
           <div className="work-block -type-4">
             <div className="icon-wrap">
               <span className={`icon ${item.icon}`}></span>
