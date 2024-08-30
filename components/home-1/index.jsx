@@ -42,84 +42,6 @@ const index = () => {
       {/* End Hero Section */}
 
 
-      <section className="registeration-banners">
-        <div className="auto-container">
-          <div className="row" data-aos="fade-up">
-            <RegBanner2 />
-          </div>
-        </div>
-      </section>
-      {/* <!-- End Skills/Companies Banners -->  */}
-
-
-
-      <section className="layout-pt-120 layout-pb-120 ">
-        <div className="auto-container">
-          <div className="sec-title text-center">
-            <h2>Our Services</h2>
-            {/* <div className="text">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod
-            </div> */}
-          </div>
-          {/* End sec-title */}
-
-          <div className="row grid-base pt-50 items-center" data-aos="fade-up">
-            <Block8 />
-            {/* <!-- Work Block --> */}
-          </div>
-        </div>
-      </section>
-      {/* <!-- End Services Section --> */}
-
-
-      <section className="about-section-two">
-        <div className="auto-container">
-          <div className="row">
-            <About2 />
-          </div>
-        </div>
-      </section>
-      {/* <!-- End About Section --> */}
-
-      <section className="testimonial-section-three">
-        <div className="auto-container">
-          {/* <!-- Sec Title --> */}
-          <div className="sec-title text-center text-5xl font-medium">
-           Holistic solutions are needed.
-            {/* <div className="text">
-              Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
-            </div> */}
-          </div>
-          {/* End sec-title */}
-
-          <div className="carousel-outer" data-aos="fade-up">
-            {/* <!-- Testimonial Carousel --> */}
-            <div className="testimonial-carousel">
-              <Testimonial3 />
-            </div>
-          </div>
-        </div>
-        {/* End auto-container */}
-      </section>
-
-      <CallToAction11 />
-      {/* <!-- End CallToAction Section --> */}
-
-
-      <section className="faqs-section">
-        <div className="auto-container">
-          <div className="sec-title text-center">
-            <h2>Frequently Asked Questions</h2>
-          </div>
-          {/* <!--Accordian Box--> */}
-          <ul className="accordion-box">
-            <FaqChild />
-          </ul>
-        </div>
-      </section>
-      {/* <!-- End Faqs Section --> */}
-
       <section className="job-categories ui-job-categories">
         <div className="auto-container">
           <div className="sec-title text-center">
@@ -217,77 +139,88 @@ const index = () => {
       </section>
       {/* <!-- End Candidates Section --> */}
 
-      <section className="testimonial-section">
-        <div className="container-fluid">
-          {/* <!-- Sec Title --> */}
+
+      <section className="registeration-banners">
+        <div className="auto-container">
+          <div className="row" data-aos="fade-up">
+            <RegBanner2 />
+          </div>
+        </div>
+      </section>
+      {/* <!-- End Skills/Companies Banners -->  */}
+
+
+
+      <section className="layout-pt-120 layout-pb-120 ">
+        <div className="auto-container">
           <div className="sec-title text-center">
-            <h2>Testimonials From Our Customers</h2>
-            <div className="text">
-              Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
-            </div>
+            <h2>Our Services</h2>
+            {/* <div className="text">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+              eiusmod
+            </div> */}
           </div>
-        </div>
-        <div className="carousel-outer" data-aos="fade-up">
-          {/* <!-- Testimonial Carousel --> */}
-          <div className="testimonial-carousel gap-x25 center-item-active slick-list-visible">
-            <Testimonial />
+          {/* End sec-title */}
+
+          <div className="row grid-base pt-50 items-center" data-aos="fade-up">
+            <Block8 />
+            {/* <!-- Work Block --> */}
           </div>
         </div>
       </section>
-      {/* <!-- End Testimonial Section --> */}
+      {/* <!-- End Services Section --> */}
 
-      <section className="clients-section">
-        <div className="sponsors-outer" data-aos="fade">
-          {/* <!--Sponsors Carousel--> */}
-          <ul className="sponsors-carousel">
-            <Partner />
-          </ul>
-        </div>
-      </section>
-      {/* <!-- End Clients Section--> */}
 
-      <section className="about-section">
+      <section className="about-section-two">
         <div className="auto-container">
           <div className="row">
-            <About />
+            <About2 />
           </div>
-
-          {/* <!-- Fun Fact Section --> */}
-          <div className="fun-fact-section">
-            <div className="row">
-              <Funfact />
-            </div>
-          </div>
-          {/* <!-- Fun Fact Section --> */}
         </div>
       </section>
       {/* <!-- End About Section --> */}
 
-      <section className="news-section">
+      <section className="testimonial-section-three">
         <div className="auto-container">
-          <div className="sec-title text-center">
-            <h2>Recent News Articles</h2>
-            <div className="text">
-              Fresh job related news content posted each day.
+          {/* <!-- Sec Title --> */}
+          <div className="sec-title text-center text-5xl font-medium">
+           Holistic solutions are needed.
+            {/* <div className="text">
+              Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
+            </div> */}
+          </div>
+          {/* End sec-title */}
+
+          <div className="carousel-outer" data-aos="fade-up">
+            {/* <!-- Testimonial Carousel --> */}
+            <div className="testimonial-carousel">
+              <Testimonial3 />
             </div>
           </div>
-          {/* End ."sec-title */}
-          <div className="row" data-aos="fade-up">
-            <Blog />
-          </div>
         </div>
+        {/* End auto-container */}
       </section>
-      {/* <!-- End News Section --> */}
 
-      <section className="app-section">
+      <CallToAction11 />
+      {/* <!-- End CallToAction Section --> */}
+
+
+      <section className="faqs-section">
         <div className="auto-container">
-          <AppSection />
+          <div className="sec-title text-center">
+            <h2>Frequently Asked Questions</h2>
+          </div>
+          {/* <!--Accordian Box--> */}
+          <ul className="accordion-box">
+            <FaqChild />
+          </ul>
         </div>
       </section>
-      {/* <!-- End App Section --> */}
+      {/* <!-- End Faqs Section --> */}
 
-      <CallToAction />
-      {/* <!-- End Call To Action --> */}
+      
+     
+
 
       <FooterDefault />
       {/* <!-- End Main Footer --> */}

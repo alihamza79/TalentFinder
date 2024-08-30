@@ -8,7 +8,7 @@ const ChatboxContactList = () => {
           <div className="d-flex bd-highlight">
             <div className="img_cont">
               <Image
-                src="/images/resource/candidate-1.png"
+                src="/images/jordii-logo.png"
                 className="rounded-circle user_img"
                 alt="chatbox avatar"
                 width={90}

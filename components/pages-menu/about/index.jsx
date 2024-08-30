@@ -28,7 +28,7 @@ const index = () => {
           <span>Our Mission</span>
         </>
       ),
-      content: "In addition to the digital and energy transformations, the most important issue of the coming years will be demographic developments. Germany will face a shortage of more than five million workers by 2035. Talendox was founded to bring together German companies and international talent selected by us, thus increasing Germany's economic strength."
+      content: "In addition to the digital and energy transformations, the most important issue of the coming years will be demographic developments. Germany will face a shortage of more than five million workers by 2035. DIGI-X-TECH was founded to bring together German companies and international talent selected by us, thus increasing Germany's economic strength."
     },
     {
       id: 2,
@@ -39,7 +39,7 @@ const index = () => {
           <span>Our Vision</span>
         </>
       ),
-      content:"Globalization and network development have become indispensable in many sectors of the economy. The employment of experts and managers has fallen short of the targets set, especially in technical professions. With the innovative Talendox platform, our recruitment centers operating in Turkey and abroad, and our personal services, we support companies in finding the best employees. At the same time, we see ourselves as a guide for talents and accompany them on their career paths. As a reliable partner, we want to expand our service worldwide."
+      content:"Globalization and network development have become indispensable in many sectors of the economy. The employment of experts and managers has fallen short of the targets set, especially in technical professions. With the innovative DIGI-X-TECH platform, our recruitment centers operating in Turkey and abroad, and our personal services, we support companies in finding the best employees. At the same time, we see ourselves as a guide for talents and accompany them on their career paths. As a reliable partner, we want to expand our service worldwide."
     },
     {
       id: 3,

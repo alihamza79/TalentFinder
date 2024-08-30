@@ -23,7 +23,7 @@ const HeaderNavContent = () => {
       <nav className="nav main-menu">
         <ul className="navigation" id="navbar">
           {/* current dropdown */}
-          <li
+          {/* <li
             className={`${
               isActiveParent(homeItems, usePathname()) ? "current" : ""
             } dropdown`}
@@ -54,8 +54,14 @@ const HeaderNavContent = () => {
                 ))}
               </div>
             </div>
+          </li> */}
+
+<li className={`${usePathname() === "/" ? "current" : ""}`}>
+            <Link href="/">Home</Link>
           </li>
           {/* End homepage menu items */}
+
+
 
 
           <li className={`${usePathname() === "/about" ? "current" : ""}`}>
@@ -66,14 +72,14 @@ const HeaderNavContent = () => {
           <li className={`${usePathname() === "/skills" ? "current" : ""}`}>
             <Link href="/skills">Skills</Link>
           </li>
-          {/* Skills */}
+          {/*End Skills */}
 
           <li className={`${usePathname() === "/companies" ? "current" : ""}`}>
             <Link href="/companies">Companies</Link>
           </li>
-          {/* Companies */}
+          {/*End Companies */}
 
-          <li
+          {/* <li
             className={`${
               isActiveParent(findJobItems, usePathname()) ? "current" : ""
             } dropdown has-mega-menu`}
@@ -106,10 +112,13 @@ const HeaderNavContent = () => {
                 ))}
               </div>
             </div>
+          </li> */}
+          <li className={`${usePathname() === "/job-list-v5" ? "current" : ""}`}>
+            <Link href="/job-list-v5">Job Listings</Link>
           </li>
           {/* End findjobs menu items */}
 
-          <li
+          {/* <li
             className={`${
               isActiveParent(employerItems, usePathname()) ||
               usePathname()?.split("/")[1] === "employers-dashboard"
@@ -158,6 +167,12 @@ const HeaderNavContent = () => {
                 </Link>
               </li>
             </ul>
+          </li> */}
+<li className={`${usePathname() === "/candidates-list-v3" ? "current" : ""}`}>
+            <Link href="/candidates-list-v3">Candidate Listings</Link>
+          </li>
+<li className={`${usePathname() === "/employers-list-v3" ? "current" : ""}`}>
+            <Link href="/employers-list-v3">Company Listings</Link>
           </li>
           {/* End Employers menu items */}
 
@@ -171,9 +186,9 @@ const HeaderNavContent = () => {
                 : ""
             } dropdown`}
           >
-            <span>Candidates</span>
+            <span>Dashboards</span>
             <ul>
-              {candidateItems.map((item) => (
+              {/* {candidateItems.map((item) => (
                 <li className="dropdown" key={item.id}>
                   <span
                     className={
@@ -199,7 +214,18 @@ const HeaderNavContent = () => {
                     ))}
                   </ul>
                 </li>
-              ))}
+              ))} */}
+              <li
+                className={
+                  usePathname()?.includes("/employers-dashboard")
+                    ? "current"
+                    : ""
+                }
+              >
+                <Link href="/employers-dashboard/dashboard">
+                  Employers Dashboard
+                </Link>
+              </li>
               <li
                 className={
                   usePathname()?.includes("/candidates-dashboard/")
@@ -207,7 +233,7 @@ const HeaderNavContent = () => {
                     : ""
                 }
               >
-                <Link href="/candidates-dashboard/dashboard">
+                <Link href="/candidates-dashboard/my-profile">
                   Candidates Dashboard
                 </Link>
               </li>
@@ -236,7 +262,7 @@ const HeaderNavContent = () => {
           </li> */}
           {/* End Blog menu items */}
 
-          <li
+          {/* <li
             className={`${
               isActiveParentChaild(pageItems, usePathname()) ||
               isActiveParentChaild(shopItems[0].items, usePathname())
@@ -284,7 +310,7 @@ const HeaderNavContent = () => {
                 </li>
               ))}
             </ul>
-          </li>
+          </li> */}
           {/* End Pages menu items */}
         </ul>
       </nav>

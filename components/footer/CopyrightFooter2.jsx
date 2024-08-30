@@ -13,13 +13,13 @@ const CopyrightFooter2 = () => {
                 <Image
                   width={154}
                   height={50}
-                  src="/images/logo.svg"
+                  src="/images/jordii-logo.png"
                   alt="brand"
                 />
               </Link>
             </div>
             <div className="copyright-text">
-              © {new Date().getFullYear()} Superio by{" "}
+              © {new Date().getFullYear()} DIGI-X-TECH by{" "}
               <a
                 href="https://themeforest.net/user/ib-themes"
                 target="_blank"

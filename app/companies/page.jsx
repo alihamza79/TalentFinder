@@ -27,7 +27,7 @@ const index = () => {
       <MobileMenu />
       {/* End MobileMenu */}
 
-      <Breadcrumb title="About Us" meta="About Us" />
+      <Breadcrumb title="A new target group - an innovative way for your company's success." meta="Companies" />
       {/* <!--End Page Title--> */}
 
           <FooterDefault />

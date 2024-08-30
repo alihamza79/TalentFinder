@@ -62,7 +62,7 @@ module.exports = [
   {
     id: 7,
     // feedback: "Unique Design!",
-    feedbackText: `"There is a shortage of skilled workers. But there is a lack of holistic solutions that will really help companies. Talendox was created based on many years of experience in adult education and SME management."  `,
+    feedbackText: `"There is a shortage of skilled workers. But there is a lack of holistic solutions that will really help companies. DIGI-X-TECH was created based on many years of experience in adult education and SME management."  `,
     avatar: "/images/resource/testimonial-image.jpg",
     name: "Caner Durgut",
     designation:

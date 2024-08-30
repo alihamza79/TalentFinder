@@ -3,14 +3,14 @@ module.exports = [
     id: 1,
     title: "For Candidates",
     menuList: [
-      { name: "Browse Jobs", route: "/job-list-v11" },
-      { name: "Browse Categories", route: "/job-list-v3" },
+      { name: "Browse Jobs", route: "/job-list-v5" },
+      { name: "Browse Categories", route: "/job-list-v5" },
       { name: "Candidate Dashboard", route: "/candidates-dashboard/dashboard" },
-      { name: "Job Alerts", route: "/candidates-dashboard/job-alerts" },
-      {
-        name: "My Bookmarks",
-        route: "/candidates-dashboard/short-listed-jobs",
-      },
+      // { name: "Job Alerts", route: "/candidates-dashboard/job-alerts" },
+      // {
+      //   name: "My Bookmarks",
+      //   route: "/candidates-dashboard/short-listed-jobs",
+      // },
     ],
   },
   {
@@ -19,11 +19,11 @@ module.exports = [
     menuList: [
       {
         name: "Browse Candidates",
-        route: "/candidates-list-v1",
+        route: "/candidates-list-v3",
       },
       { name: "Employer Dashboard", route: "/employers-dashboard/dashboard" },
       { name: "Add Job", route: "/employers-dashboard/post-jobs" },
-      { name: "Job Packages", route: "/employers-dashboard/packages" },
+      // { name: "Job Packages", route: "/employers-dashboard/packages" },
     ],
   },
   {
@@ -31,9 +31,9 @@ module.exports = [
     title: "About Us",
     menuList: [
       { name: "About Us", route: "/about" },
-      { name: "Job Page Invoice", route: "/invoice" },
-      { name: "Terms Page", route: "/terms" },
-      { name: "Blog", route: "/blog-list-v1" },
+      // { name: "Job Page Invoice", route: "/invoice" },
+      // { name: "Terms Page", route: "/terms" },
+      // { name: "Blog", route: "/blog-list-v1" },
       { name: "Contact", route: "/contact" },
     ],
   },

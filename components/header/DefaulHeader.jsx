@@ -35,10 +35,10 @@ const DefaulHeader = () => {
           <div className="logo-box">
             <div className="logo">
               <Link href="/">
-                <Image
-                  width={153}
-                  height={60}
-                  src="/images/logo.svg"
+              <Image
+                  width={98}
+                  height={1}
+                  src="/images/jordii-logo.png"
                   alt="brand"
                 />
               </Link>
@@ -62,12 +62,12 @@ const DefaulHeader = () => {
             >
               Login / Register
             </a>
-            <Link
+            {/* <Link
               href="/employers-dashboard/post-jobs"
               className="theme-btn btn-style-one"
             >
               Job Post
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

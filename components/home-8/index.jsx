@@ -30,7 +30,7 @@ const index = () => {
       <section className="clients-section-two alternate">
         <div className="auto-container">
           <div className="sec-title text-center">
-            <h2>Top Companies Hiring at Superio Now</h2>
+            <h2>Top Companies Hiring at DIGI-X-TECH Now</h2>
             <div className="text">
               Lorem ipsum dolor sit amet elit, sed do eiusmod tempor
             </div>

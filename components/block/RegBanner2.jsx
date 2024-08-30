@@ -7,7 +7,7 @@ const RegBanner2 = () => {
       id: 1,
       name: "Skills",
       text: `Find suitable jobs and strong employers, apply to them or let companies find you easily and conveniently.
-With Talendox we offer you a first-class service - personalized and individual.`,
+With DIGI-X-TECH we offer you a first-class service - personalized and individual.`,
       avatar: "/images/resource/employ.png",
       bannerClass: "banner-style-one",
       width: "221",

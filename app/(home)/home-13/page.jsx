@@ -3,8 +3,8 @@ import React from "react";
 import Home from "@/components/home-13";
 
 export const metadata = {
-  title: "Home-13 || Superio - Job Borad React NextJS Template",
-  description: "Superio - Job Borad React NextJS Template",
+  title: "Home-13 || DIGI-X-TECH - Job Borad React NextJS Template",
+  description: "DIGI-X-TECH - Job Borad React NextJS Template",
 };
 
 const index = () => {

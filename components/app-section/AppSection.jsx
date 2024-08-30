@@ -21,7 +21,7 @@ const AppSection = () => {
           <div className="sec-title">
             <span className="sub-title">DOWNLOAD & ENJOY</span>
             <h2>
-              Get the Superio Job
+              Get the DIGI-X-TECH Job
               <br /> Search App
             </h2>
             <div className="text">

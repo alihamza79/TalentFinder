@@ -2,7 +2,7 @@ module.exports = [
   {
     id: 1,
     icon: "flaticon-money-1",
-    title: "Access to Talendox Portal",
+    title: "Access to DIGI-X-TECH Portal",
     content:
       "Unlimited access to jobs and companies on the portal for 12 months.",
   },

@@ -13,7 +13,7 @@ const About2 = () => {
               DIGI-X-TECH
             </h2>
             <div className="text">
-            With the Talendox portal, companies reach a new and highly interesting target group, the qualified talents we have vetted find first-class employers and our team accompanies you throughout the entire process. More than just a personalized, individual and simple job search portal.
+            With the DIGI-X-TECH portal, companies reach a new and highly interesting target group, the qualified talents we have vetted find first-class employers and our team accompanies you throughout the entire process. More than just a personalized, individual and simple job search portal.
 
             </div>
             <div className="font-semibold mt-6">

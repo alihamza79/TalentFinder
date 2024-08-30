@@ -27,7 +27,7 @@ const index = () => {
                     <Image
                       width={154}
                       height={50}
-                      src="/images/logo.svg"
+                      src="/images/jordii-logo.png"
                       alt="logo"
                     />
                   </Link>
@@ -61,7 +61,7 @@ const index = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="invoice@superio.com">invoice@superio.com</a>
+                  <a href="invoice@DIGI-X-TECH.com">invoice@DIGI-X-TECH.com</a>
                 </li>
                 <li>
                   <a href="tel:123123456">(123) 123-456</a>

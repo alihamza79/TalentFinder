@@ -40,11 +40,11 @@ const Footer = () => {
                 <div className="logo">
                   <a href="#">
                     <Image
-                      width={154}
-                      height={50}
-                      src="/images/logo-2.svg"
-                      alt="brand"
-                    />
+                  width={98}
+                  height={1}
+                  src="/images/jordii-logo.png"
+                  alt="brand"
+                />
                   </a>
                 </div>
                 <p className="phone-num">
@@ -54,8 +54,8 @@ const Footer = () => {
                 <p className="address">
                   329 Queensberry Street, North Melbourne VIC
                   <br /> 3051, Australia. <br />
-                  <a href="mailto:support@superio.com" className="email">
-                    support@superio.com
+                  <a href="mailto:support@DIGI-X-TECH.com" className="email">
+                    support@DIGI-X-TECH.com
                   </a>
                 </p>
               </div>

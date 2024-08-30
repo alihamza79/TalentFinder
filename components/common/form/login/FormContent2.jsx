@@ -42,7 +42,7 @@ const FormContent2 = () => {
 
   return (
     <div className="form-inner">
-      <h3>Login to Superio</h3>
+      <h3>Login to DIGI-X-TECH</h3>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       <form method="post" onSubmit={handleLogin}>
         <div className="form-group">

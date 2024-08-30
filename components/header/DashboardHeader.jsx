@@ -41,13 +41,12 @@ const DashboardHeader = () => {
                         <div className="logo-box">
                             <div className="logo">
                                 <Link href="/">
-                                    <Image
-                                        alt="brand"
-                                        src="/images/logo.svg"
-                                        width={154}
-                                        height={50}
-                                        priority
-                                    />
+                                <Image
+                  width={98}
+                  height={1}
+                  src="/images/jordii-logo.png"
+                  alt="brand"
+                />
                                 </Link>
                             </div>
                         </div>
@@ -59,15 +58,15 @@ const DashboardHeader = () => {
                     {/* End .nav-outer */}
 
                     <div className="outer-box">
-                        <button className="menu-btn">
+                        {/* <button className="menu-btn">
                             <span className="count">1</span>
                             <span className="icon la la-heart-o"></span>
-                        </button>
+                        </button> */}
                         {/* wishlisted menu */}
 
-                        <button className="menu-btn">
+                        {/* <button className="menu-btn">
                             <span className="icon la la-bell"></span>
-                        </button>
+                        </button> */}
                         {/* End notification-icon */}
 
                         {/* <!-- Dashboard Option --> */}
