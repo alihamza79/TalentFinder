@@ -1,165 +1,333 @@
+'use client';
 
-'use client'
-
+import { useState, useEffect } from "react";
 import Select from "react-select";
+import * as sdk from "node-appwrite";
+import useAuth from "@/app/hooks/useAuth";  
+import initializeDB from "@/appwrite/Services/dbServices";
+import catOptions from "@/data/categories"; 
 
 const FormInfoBox = () => {
-  const catOptions = [
-    { value: "Banking", label: "Banking" },
-    { value: "Digital & Creative", label: "Digital & Creative" },
-    { value: "Retail", label: "Retail" },
-    { value: "Human Resources", label: "Human Resources" },
-    { value: "Managemnet", label: "Managemnet" },
-    { value: "Accounting & Finance", label: "Accounting & Finance" },
-    { value: "Digital", label: "Digital" },
-    { value: "Creative Art", label: "Creative Art" },
-  ];
+    const [db, setDb] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState([]);
+    const [skillsOptions, setSkillsOptions] = useState([]);
+    const [formData, setFormData] = useState({
+        name: "",
+        jobTitle: "",
+        country: "",
+        city: "",
+        expectedSalaryRange: "", 
+        categoryTags: [], 
+        experience: 0,  
+        age: 0,
+        gender: "",
+        languages: "",
+        educationalLevel: "",
+        skills: [],
+        description: "",
+    });
 
-  return (
-    <form action="#" className="default-form">
-      <div className="row">
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Full Name</label>
-          <input type="text" name="name" placeholder="Jerome" required />
-        </div>
+    const { user } = useAuth();  
+    const [documentId, setDocumentId] = useState(null);  
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Job Title</label>
-          <input type="text" name="name" placeholder="UI Designer" required />
-        </div>
+    useEffect(() => {
+        const fetchData = async () => {
+            const initializedDb = await initializeDB();  
+            setDb(initializedDb);  
+            
+            if (user?.userId && initializedDb) {
+                initializedDb.jobSeekers?.list([sdk.Query.equal('userId', user.userId)])
+                    .then((response) => {
+                        if (response.documents.length > 0) {
+                            const document = response.documents[0];
+                            setDocumentId(document.$id);  
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Phone</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="0 123 456 7890"
-            required
-          />
-        </div>
+                            const selectedCategories = [];
+                            const selectedSkills = [];
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Email address</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="creativelayers"
-            required
-          />
-        </div>
+                            document.categoryTags?.forEach(tag => {
+                                const mainCategory = catOptions.find(category => category.value === tag);
+                                if (mainCategory) {
+                                    selectedCategories.push({ value: mainCategory.value, label: mainCategory.label });
+                                }
+                            });
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Website</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="www.jerome.com"
-            required
-          />
-        </div>
+                            document.skills?.forEach(skill => {
+                                const skillOption = catOptions.find(option => option.value === skill);
+                                if (skillOption) {
+                                    selectedSkills.push({ value: skillOption.value, label: skillOption.label });
+                                }
+                            });
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-3 col-md-12">
-          <label>Current Salary($)</label>
-          <select className="chosen-single form-select" required>
-            <option>40-70 K</option>
-            <option>50-80 K</option>
-            <option>60-90 K</option>
-            <option>70-100 K</option>
-            <option>100-150 K</option>
-          </select>
-        </div>
+                            setSelectedCategory(selectedCategories);
+                            setSkillsOptions(selectedSkills);
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-3 col-md-12">
-          <label>Expected Salary($)</label>
-          <select className="chosen-single form-select" required>
-            <option>120-350 K</option>
-            <option>40-70 K</option>
-            <option>50-80 K</option>
-            <option>60-90 K</option>
-            <option>70-100 K</option>
-            <option>100-150 K</option>
-          </select>
-        </div>
+                            setFormData({
+                                name: document.name || "",
+                                jobTitle: document.jobTitle || "",
+                                country: document.country || "",
+                                city: document.city || "",
+                                expectedSalaryRange: document.expectedSalaryRange || "",  
+                                categoryTags: selectedCategories || [],
+                                experience: document.experience || 0,  
+                                age: document.age || 0,
+                                gender: document.gender || "",
+                                languages: document.languages || "",
+                                educationalLevel: document.educationalLevel || "",
+                                skills: selectedSkills || [],
+                                description: document.description || "",
+                            });
+                        } else {
+                            console.error("No document found for this user.");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching document:", error);
+                    });
+            }
+        };
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Experience</label>
-          <input type="text" name="name" placeholder="5-10 Years" required />
-        </div>
+        fetchData();
+    }, [user]);
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Age</label>
-          <select className="chosen-single form-select" required>
-            <option>23 - 27 Years</option>
-            <option>24 - 28 Years</option>
-            <option>25 - 29 Years</option>
-            <option>26 - 30 Years</option>
-          </select>
-        </div>
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: name === "experience" || name === "age" 
+                ? isNaN(parseInt(value, 10)) ? 0 : parseInt(value, 10) 
+                : value,
+        }));
+    };
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Education Levels</label>
-          <input type="text" name="name" placeholder="Certificate" required />
-        </div>
+    const handleCategoryChange = (selectedOption) => {
+        setSelectedCategory(selectedOption);
+        setFormData((prevData) => ({
+            ...prevData,
+            categoryTags: selectedOption ? selectedOption.map(cat => cat.value) : [],
+        }));
+    };
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Languages</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="English, Turkish"
-            required
-          />
-        </div>
+    const handleSkillsChange = (selectedSkills) => {
+        setSkillsOptions(selectedSkills);
+        setFormData((prevData) => ({
+            ...prevData,
+            skills: selectedSkills ? selectedSkills.map(skill => skill.value) : [],
+        }));
+    };
 
-        {/* <!-- Search Select --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Categories </label>
-          <Select
-            defaultValue={[catOptions[1]]}
-            isMulti
-            name="colors"
-            options={catOptions}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            required
-          />
-        </div>
+    const handleSave = (e) => {
+        e.preventDefault();
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <label>Allow In Search & Listing</label>
-          <select className="chosen-single form-select" required>
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </div>
+        const updatedData = {
+            name: formData.name,
+            jobTitle: formData.jobTitle,
+            country: formData.country,
+            city: formData.city,
+            expectedSalaryRange: formData.expectedSalaryRange,
+            categoryTags: formData.categoryTags.map(cat => cat.value),  // Ensure strings only
+            experience: formData.experience,
+            age: formData.age,
+            gender: formData.gender,
+            languages: formData.languages,
+            educationalLevel: formData.educationalLevel,
+            skills: formData.skills.map(skill => skill.value),  // Ensure strings only
+            description: formData.description,
+            userId: user.userId  
+        };
 
-        {/* <!-- About Company --> */}
-        <div className="form-group col-lg-12 col-md-12">
-          <label>Description</label>
-          <textarea placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"></textarea>
-        </div>
+        if (documentId && db) {
+            db.jobSeekers?.update(documentId, updatedData)
+                .then(() => {
+                    console.log("Document updated successfully");
+                })
+                .catch((error) => {
+                    console.error("Error updating document:", error);
+                });
+        } else if (db) {
+            db.jobSeekers?.create(updatedData)
+                .then((newDoc) => {
+                    setDocumentId(newDoc.$id);
+                    console.log("Document created successfully");
+                })
+                .catch((error) => {
+                    console.error("Error creating document:", error);
+                });
+        }
+    };
 
-        {/* <!-- Input --> */}
-        <div className="form-group col-lg-6 col-md-12">
-          <button type="submit" className="theme-btn btn-style-one">
-            Save
-          </button>
-        </div>
-      </div>
-    </form>
-  );
+    return (
+        <form className="default-form" onSubmit={handleSave}>
+            <div className="row">
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Full Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Jerome"
+                        value={formData.name}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Job Title</label>
+                    <input
+                        type="text"
+                        name="jobTitle"
+                        placeholder="UI Designer"
+                        value={formData.jobTitle}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Country</label>
+                    <input
+                        type="text"
+                        name="country"
+                        placeholder="Germany"
+                        value={formData.country}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>City</label>
+                    <input
+                        type="text"
+                        name="city"
+                        placeholder="Frankfurt"
+                        value={formData.city}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Age</label>
+                    <input
+                        type="number"
+                        name="age"
+                        placeholder={0}
+                        value={formData.age}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Expected Salary Range</label>
+                    <input
+                        type="text"
+                        name="expectedSalaryRange"
+                        placeholder="90k-100k"
+                        value={formData.expectedSalaryRange}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Experience (Years)</label>
+                    <input
+                        type="number"
+                        name="experience"
+                        placeholder="5"
+                        value={formData.experience}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Gender</label>
+                    <select
+                        name="gender"
+                        className="chosen-single form-select"
+                        value={formData.gender}
+                        required
+                        onChange={handleInputChange}
+                    >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Education Levels</label>
+                    <input
+                        type="text"
+                        name="educationalLevel"
+                        placeholder="Certificate"
+                        value={formData.educationalLevel}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Categories</label>
+                    <Select
+                        value={selectedCategory}
+                        isMulti
+                        name="categoryTags"
+                        options={catOptions}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        onChange={handleCategoryChange}
+                        placeholder="Select Category"
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Skills</label>
+                    <Select
+                        value={skillsOptions}
+                        isMulti
+                        name="skills"
+                        options={catOptions}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        onChange={handleSkillsChange}
+                        placeholder="Select Skills"
+                    />
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <label>Languages</label>
+                    <input
+                        type="text"
+                        name="languages"
+                        placeholder="English, Turkish"
+                        value={formData.languages}
+                        required
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="form-group col-lg-12 col-md-12">
+                    <label>Description</label>
+                    <textarea
+                        name="description"
+                        placeholder="Description about yourself"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                    ></textarea>
+                </div>
+
+                <div className="form-group col-lg-6 col-md-12">
+                    <button className="theme-btn btn-style-one" type="submit">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    );
 };
 
 export default FormInfoBox;

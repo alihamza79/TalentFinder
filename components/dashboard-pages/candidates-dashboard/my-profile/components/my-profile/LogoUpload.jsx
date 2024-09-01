@@ -25,7 +25,7 @@ const LogoUpload = () => {
                         className="uploadButton-button ripple-effect"
                         htmlFor="upload"
                     >
-                        {logImg !== "" ? logImg.name : "Browse Logo"}
+                        {logImg !== "" ? logImg.name : "Upload Profile Image"}
                     </label>
                     <span className="uploadButton-file-name"></span>
                 </div>
@@ -33,7 +33,62 @@ const LogoUpload = () => {
                     Max file size is 1MB, Minimum dimension: 330x300 And
                     Suitable files are .jpg & .png
                 </div>
+
+                
             </div>
+            <div className="uploading-outer">
+                <div className="uploadButton">
+                    <input
+                        className="uploadButton-input"
+                        type="file"
+                        name="attachments[]"
+                        accept="image/*"
+                        id="upload"
+                        required
+                        onChange={logImgHander}
+                    />
+                    <label
+                        className="uploadButton-button ripple-effect"
+                        htmlFor="upload"
+                    >
+                        {logImg !== "" ? logImg.name : "Upload CV"}
+                    </label>
+                    <span className="uploadButton-file-name"></span>
+                </div>
+                <div className="text">
+                    Max file size is 1MB, Minimum dimension: 330x300 And
+                    Suitable files are .jpg & .png
+                </div>
+
+                
+            </div>
+            <div className="uploading-outer">
+                <div className="uploadButton">
+                    <input
+                        className="uploadButton-input"
+                        type="file"
+                        name="attachments[]"
+                        accept="image/*"
+                        id="upload"
+                        required
+                        onChange={logImgHander}
+                    />
+                    <label
+                        className="uploadButton-button ripple-effect"
+                        htmlFor="upload"
+                    >
+                        {logImg !== "" ? logImg.name : "Upload Introduction Video"}
+                    </label>
+                    <span className="uploadButton-file-name"></span>
+                </div>
+                <div className="text">
+                    Max file size is 1MB, Minimum dimension: 330x300 And
+                    Suitable files are .jpg & .png
+                </div>
+
+                
+            </div>
+            
         </>
     );
 };
