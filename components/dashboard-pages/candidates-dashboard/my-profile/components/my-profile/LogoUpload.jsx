@@ -1,13 +1,10 @@
 'use client'
 
-
-// Import the storage service
 import { useState, useEffect } from "react";
 import { initializeStorageServices } from "@/appwrite/Services/storageServices"; 
 import initializeDB from "@/appwrite/Services/dbServices";
 import useAuth from "@/app/hooks/useAuth";
 import * as sdk from "node-appwrite";
-
 
 const LogoUpload = () => {
   const [storageServices, setStorageServices] = useState(null);
@@ -17,8 +14,6 @@ const LogoUpload = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [cvFile, setCvFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
-
-  const [uploading, setUploading] = useState(false);
 
   const { user } = useAuth(); // Get current user
 
@@ -32,14 +27,29 @@ const LogoUpload = () => {
         const db = await initializeDB();
         setDbServices(db);
 
-        // Fetch or create jobSeeker document of the current user(by there userID)
+        // Fetch or create jobSeeker document of the current user (by their userID)
         if (user && db.jobSeekers) {
           const response = await db.jobSeekers.list([
             sdk.Query.equal("userId", user.userId),
           ]);
 
           if (response.total > 0) {
-            setDocumentId(response.documents[0].$id);
+            const doc = response.documents[0];
+            setDocumentId(doc.$id);
+
+            // Fetch and set the current file names if they exist
+            if (doc.profileImg) {
+              const profileImageFile = await storage.images.getFile(doc.profileImg);
+              setProfileImage({ name: profileImageFile.name, id: doc.profileImg });
+            }
+            if (doc.cv) {
+              const cvFile = await storage.files.getFile(doc.cv);
+              setCvFile({ name: cvFile.name, id: doc.cv });
+            }
+            if (doc.video) {
+              const videoFile = await storage.videos.getFile(doc.video);
+              setVideoFile({ name: videoFile.name, id: doc.video });
+            }
           } else {
             const newDocument = await db.jobSeekers.create({
               userId: user.userId,
@@ -47,7 +57,7 @@ const LogoUpload = () => {
             setDocumentId(newDocument.$id);
           }
         }
-        console.log("user: ",user);
+        console.log("user: ", user);
       } catch (error) {
         console.error("Error initializing services:", error);
       }
@@ -73,28 +83,16 @@ const LogoUpload = () => {
   const handleUpload = async (e) => {
     e.preventDefault();
 
-    if (!storageServices) {
-        console.error("Services not initialized properly: storageServices");
-        return;
-      }
-
-      if (!dbServices) {
-        console.error("Services not initialized properly: dbServices");
-        return;
-      }
-
-      if (!documentId) {
-        console.error("Services not initialized properly: documentId");
-        return;
-      }
-
-    setUploading(true);
+    if (!storageServices || !dbServices || !documentId) {
+      console.error("Services not initialized properly");
+      return;
+    }
 
     try {
       const updates = {};
 
       // Upload Profile Image
-      if (profileImage) {
+      if (profileImage && !profileImage.id) {
         const profileImageUpload = await storageServices.images.createFile(
           profileImage
         );
@@ -103,14 +101,14 @@ const LogoUpload = () => {
       }
 
       // Upload CV File
-      if (cvFile) {
+      if (cvFile && !cvFile.id) {
         const cvFileUpload = await storageServices.files.createFile(cvFile);
         updates.cv = cvFileUpload.$id;
         console.log("CV uploaded successfully.");
       }
 
       // Upload Video File
-      if (videoFile) {
+      if (videoFile && !videoFile.id) {
         const videoFileUpload = await storageServices.videos.createFile(
           videoFile
         );
@@ -124,24 +122,18 @@ const LogoUpload = () => {
         console.log("jobSeekers document updated successfully.");
       }
 
-      // Reset file inputs
-      setProfileImage(null);
-      setCvFile(null);
-      setVideoFile(null);
       alert("Files uploaded and data updated successfully!");
     } catch (error) {
       console.error("Error uploading files:", error);
       alert("An error occurred during upload. Please try again.");
-    } finally {
-      setUploading(false);
     }
   };
 
   return (
-    <form onSubmit={handleUpload}>
+    <form onSubmit={handleUpload} className="default-form">
       {/* Profile Image Upload */}
       <div className="uploading-outer">
-        <div className="uploadButton">
+        <div className="uploadButton mr-6">
           <input
             className="uploadButton-input"
             type="file"
@@ -150,20 +142,20 @@ const LogoUpload = () => {
             onChange={handleProfileImageChange}
           />
           <label
-            className="uploadButton-button ripple-effect"
+            className={`uploadButton-button ripple-effect ${profileImage ? "uploadButton-green" : ""}`}
             htmlFor="uploadProfileImage"
           >
             {profileImage ? profileImage.name : "Upload Profile Image"}
           </label>
         </div>
         <div className="text">
-          Max file size: 2MB. Allowed types: jpg, jpeg, png, gif.
+          Max file size: 50MB. Allowed types: jpg, jpeg, png, gif.
         </div>
       </div>
 
       {/* CV Upload */}
       <div className="uploading-outer">
-        <div className="uploadButton">
+        <div className="uploadButton mr-6">
           <input
             className="uploadButton-input"
             type="file"
@@ -172,20 +164,20 @@ const LogoUpload = () => {
             onChange={handleCvFileChange}
           />
           <label
-            className="uploadButton-button ripple-effect"
+            className={`uploadButton-button ripple-effect ${cvFile ? "uploadButton-green" : ""}`}
             htmlFor="uploadCvFile"
           >
             {cvFile ? cvFile.name : "Upload CV"}
           </label>
         </div>
         <div className="text">
-          Max file size: 5MB. Allowed types: pdf, doc, docx, txt.
+          Max file size: 50MB. Allowed types: pdf, doc, docx, txt.
         </div>
       </div>
 
       {/* Video Upload */}
       <div className="uploading-outer">
-        <div className="uploadButton">
+        <div className="uploadButton mr-6">
           <input
             className="uploadButton-input"
             type="file"
@@ -194,24 +186,26 @@ const LogoUpload = () => {
             onChange={handleVideoFileChange}
           />
           <label
-            className="uploadButton-button ripple-effect"
+            className={`uploadButton-button ripple-effect ${videoFile ? "uploadButton-green" : ""}`}
             htmlFor="uploadVideoFile"
           >
             {videoFile ? videoFile.name : "Upload Video"}
           </label>
         </div>
         <div className="text">
-          Max file size: 20MB. Allowed types: mp4, mov, avi.
+          Max file size: 50MB. Allowed types: mp4, mov, avi.
         </div>
       </div>
 
-      <button
-        className="button ripple-effect"
-        type="submit"
-        disabled={uploading}
-      >
-        {uploading ? "Uploading..." : "Upload Files"}
-      </button>
+      <div className="form-group col-lg-12 col-md-12 mb-12">
+        <button
+          className="theme-btn btn-style-one"
+          type="submit"
+          disabled={!profileImage && !cvFile && !videoFile}
+        >
+          {profileImage || cvFile || videoFile ? "Upload Files" : "No Files to Upload"}
+        </button>
+      </div>
     </form>
   );
 };
