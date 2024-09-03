@@ -1,75 +1,129 @@
-import { initializeBuckets, buckets } from "../buckets";
-import { storage } from "../config"; // Ensure you have initialized Appwrite client and storage service
+import { storage } from "../config";
 import { ID, Permission, Role } from "appwrite";
 
-// Initialize buckets before using them
-(async () => {
-  await initializeBuckets();
-})();
+let createdBuckets = {}; // Cache for created buckets
 
-const storageServices = {};
+const requiredBuckets = [
+  {
+    name: "images",
+    attributes: {
+      fileSizeLimit: 2 * 1024 * 1024, // 2MB
+      allowedFileTypes: ["jpg", "jpeg", "png", "gif"],
+    },
+  },
+  {
+    name: "files",
+    attributes: {
+      fileSizeLimit: 5 * 1024 * 1024, // 5MB
+      allowedFileTypes: ["pdf", "doc", "docx", "txt"],
+    },
+  },
+  {
+    name: "videos",
+    attributes: {
+      fileSizeLimit: 20 * 1024 * 1024, // 20MB
+      allowedFileTypes: ["mp4", "mov", "avi"],
+    },
+  },
+];
 
-// Function to create a new storage bucket with full permissions and various attributes
-storageServices.createBucket = async (bucketName, attributes = {}) => {
+const createBucketIfNotExists = async (bucketName, attributes) => {
+  if (createdBuckets[bucketName]) {
+    console.log(`Bucket already exists in cache: ${bucketName}`);
+    return createdBuckets[bucketName];
+  }
+
   try {
-    const {
-      fileSizeLimit = null,       // Maximum file size (optional)
-      allowedFileTypes = [],      // Allowed file types (optional, empty array allows all types)
-      isPublic = true,            // Public visibility flag
-      encryption = true,          // Encryption setting (default true)
-      antivirus = true            // Antivirus setting (default true)
-    } = attributes;
+    // Fetch all buckets once
+    if (!createdBuckets.bucketsList) {
+      createdBuckets.bucketsList = await storage.listBuckets();
+    }
 
-    // Create the bucket with all permissions (upload, download, update, delete)
-    const bucket = await storage.createBucket(
-      ID.unique(), // Unique ID for the bucket
-      bucketName,
-      [
-        Permission.create(Role.any()),    // Public upload
-        Permission.read(Role.any()),      // Public download
-        Permission.update(Role.any()),    // Public update
-        Permission.delete(Role.any())     // Public delete
-      ],
-      isPublic,
-      fileSizeLimit,          // Optional file size limit
-      allowedFileTypes        // Optional list of allowed file types (empty array allows all)
+    // Check if the bucket already exists
+    const bucketExists = createdBuckets.bucketsList.buckets.some(
+      (bucket) => bucket.name === bucketName
     );
 
-    // Set additional attributes like encryption and antivirus
-    await storage.updateBucket(bucket.$id, {
-      encryption,   // Enable or disable encryption
-      antivirus     // Enable or disable antivirus scanning
-    });
+    if (!bucketExists) {
+      console.log(`Creating new bucket: ${bucketName}`);
 
-    console.log("Bucket created successfully with attributes:", bucket);
-    return bucket;
+      // Lock this bucket creation to prevent race conditions
+      createdBuckets[bucketName] = new Promise(async (resolve, reject) => {
+        try {
+          const bucket = await storage.createBucket(
+            ID.unique(), // bucketId
+            bucketName, // name
+            [
+              Permission.read(Role.any()),
+              Permission.create(Role.any()),
+              Permission.update(Role.any()),
+              Permission.delete(Role.any()),
+            ], // permissions
+            true, // fileSecurity
+            true, // enabled
+            attributes.fileSizeLimit, // maximumFileSize
+            attributes.allowedFileTypes, // allowedFileExtensions
+            undefined, // compression (if not used, can be omitted or set to undefined)
+            true, // encryption
+            true // antivirus
+          );
+          console.log(`Bucket created: ${bucketName}`);
+          createdBuckets.bucketsList.buckets.push(bucket); // Add to list to avoid future duplication
+          resolve(bucket);
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      return await createdBuckets[bucketName];
+    } else {
+      console.log(createdBuckets);
+      console.log(`Bucket already exists: ${bucketName}`);
+      const existingBucket = createdBuckets.bucketsList.buckets.find(
+        (bucket) => bucket.name === bucketName
+      );
+      createdBuckets[bucketName] = existingBucket;
+      return existingBucket;
+    }
   } catch (error) {
-    console.error("Error creating bucket or setting attributes:", error);
+    console.error(`Error creating or fetching bucket ${bucketName}:`, error);
     throw error;
   }
 };
 
-// Initialize storage services for each bucket
-buckets.forEach((bucket) => {
-  storageServices[bucket.name] = {
-    createFile: async (file, id = ID.unique()) =>
-      await storage.createFile(bucket.id, id, file),
+// Initialize storage services
+const fetchAllBuckets = async () => {
+  try {
+    const storageServices = {};
 
-    deleteFile: async (id) => await storage.deleteFile(bucket.id, id),
+    for (const bucketConfig of requiredBuckets) {
+      const bucket = await createBucketIfNotExists(
+        bucketConfig.name,
+        bucketConfig.attributes
+      );
 
-    getFile: async (id) => await storage.getFile(bucket.id, id),
+      storageServices[bucketConfig.name] = {
+        bucketId: bucket.$id,
+        createFile: async (file, id = ID.unique()) =>
+          await storage.createFile(bucket.$id, id, file),
+        deleteFile: async (fileId) =>
+          await storage.deleteFile(bucket.$id, fileId),
+        getFile: async (fileId) => await storage.getFile(bucket.$id, fileId),
+        getFileDownload: async (fileId) =>
+          await storage.getFileDownload(bucket.$id, fileId),
+        listFiles: async (queries) =>
+          await storage.listFiles(bucket.$id, queries),
+      };
+    }
 
-    getFileDownload: async (id) => await storage.getFileDownload(bucket.id, id),
+    return storageServices;
+  } catch (error) {
+    console.error("Error initializing storage services:", error);
+    throw error;
+  }
+};
 
-    getFilePreview: async (id) => await storage.getFilePreview(bucket.id, id),
-
-    getFileView: async (id) => await storage.getFileView(bucket.id, id),
-
-    listFiles: async (queries) => await storage.listFiles(bucket.id, queries),
-
-    updateFile: async (id, file) =>
-      await storage.updateFile(bucket.id, id, file),
-  };
-});
-
-export default storageServices;
+// Ensure buckets are fetched by returning a promise
+export const initializeStorageServices = async () => {
+  return await fetchAllBuckets();
+};
