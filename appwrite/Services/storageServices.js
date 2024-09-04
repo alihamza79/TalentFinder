@@ -7,21 +7,21 @@ const requiredBuckets = [
   {
     name: "images",
     attributes: {
-      fileSizeLimit: 50 * 1024 * 1024, // 2MB
+      fileSizeLimit: 50 * 1000 * 1000, // 2MB
       allowedFileTypes: ["jpg", "jpeg", "png", "gif"],
     },
   },
   {
     name: "files",
     attributes: {
-      fileSizeLimit: 50 * 1024 * 1024, // 5MB
+      fileSizeLimit: 50 * 1000 * 1000, // 5MB
       allowedFileTypes: ["pdf", "doc", "docx", "txt"],
     },
   },
   {
     name: "videos",
     attributes: {
-      fileSizeLimit: 50 * 1024 * 1024, // 20MB
+      fileSizeLimit: 50 * 1000 * 1000, // 20MB
       allowedFileTypes: ["mp4", "mov", "avi"],
     },
   },

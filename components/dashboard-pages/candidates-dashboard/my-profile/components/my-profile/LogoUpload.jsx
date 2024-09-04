@@ -18,6 +18,11 @@ const LogoUpload = () => {
   const [cvFile, setCvFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
 
+  // States for holding the IDs of the previous files from the database
+  const [previousProfileImgId, setPreviousProfileImgId] = useState(null);
+  const [previousCvFileId, setPreviousCvFileId] = useState(null);
+  const [previousVideoFileId, setPreviousVideoFileId] = useState(null);
+
   const [uploading, setUploading] = useState(false);
 
   const { user } = useAuth(); // Get current user
@@ -42,18 +47,21 @@ const LogoUpload = () => {
             const doc = response.documents[0];
             setDocumentId(doc.$id);
 
-            // Fetch and set the current file names if they exist
+            // Fetch and set the current file names and IDs if they exist
             if (doc.profileImg) {
               const profileImageFile = await storage.images.getFile(doc.profileImg);
               setProfileImage({ name: profileImageFile.name, id: doc.profileImg });
+              setPreviousProfileImgId(doc.profileImg);  // Store previous profile image ID
             }
             if (doc.cv) {
               const cvFile = await storage.files.getFile(doc.cv);
               setCvFile({ name: cvFile.name, id: doc.cv });
+              setPreviousCvFileId(doc.cv);  // Store previous CV file ID
             }
             if (doc.video) {
               const videoFile = await storage.videos.getFile(doc.video);
               setVideoFile({ name: videoFile.name, id: doc.video });
+              setPreviousVideoFileId(doc.video);  // Store previous video file ID
             }
           } else {
             const newDocument = await db.jobSeekers.create({
@@ -85,6 +93,18 @@ const LogoUpload = () => {
     setVideoFile(e.target.files[0]);
   };
 
+  // Function to delete previous file
+  const deletePreviousFile = async (fileId, service) => {
+    try {
+      if (fileId) {
+        await service.deleteFile(fileId);
+        console.log(`File ${fileId} deleted successfully.`);
+      }
+    } catch (error) {
+      console.error(`Error deleting file ${fileId}:`, error);
+    }
+  };
+
   // Handle file uploads
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -101,29 +121,39 @@ const LogoUpload = () => {
     try {
       const updates = {};
 
-      const uploadFile = async (file, service, type) => {
+      const uploadFile = async (file, service, type, previousFileId, setPreviousFileId) => {
         if (file && !file.id) {
-          const uploadProgress = 0; // Replace this with actual progress tracking if available
-          toast.update(toastId, { render: `Uploading ${type}... ${uploadProgress}%`, type: toast.TYPE.INFO });
+          console.log(`Previous ${type} ID: `, previousFileId);
+
+          toast.update(toastId, { render: `Uploading ${type}...`, type: toast.TYPE.INFO });
+
+          // Delete the previous file if it exists
+          if (previousFileId) {
+            await deletePreviousFile(previousFileId, service);
+          }
 
           const uploadedFile = await service.createFile(file, ID.unique());
 
           toast.update(toastId, { render: `${type} uploaded successfully.`, type: toast.TYPE.SUCCESS, autoClose: 5000 });
+
+          // Update the previous file ID to the new file's ID
+          setPreviousFileId(uploadedFile.$id);
+
           return uploadedFile.$id;
         }
         return null;
       };
 
       // Upload Profile Image
-      const profileImgId = await uploadFile(profileImage, storageServices.images, "Profile Image");
+      const profileImgId = await uploadFile(profileImage, storageServices.images, "Profile Image", previousProfileImgId, setPreviousProfileImgId);
       if (profileImgId) updates.profileImg = profileImgId;
 
       // Upload CV File
-      const cvId = await uploadFile(cvFile, storageServices.files, "CV");
+      const cvId = await uploadFile(cvFile, storageServices.files, "CV", previousCvFileId, setPreviousCvFileId);
       if (cvId) updates.cv = cvId;
 
       // Upload Video File
-      const videoId = await uploadFile(videoFile, storageServices.videos, "Video");
+      const videoId = await uploadFile(videoFile, storageServices.videos, "Video", previousVideoFileId, setPreviousVideoFileId);
       if (videoId) updates.video = videoId;
 
       // Update jobSeekers document
