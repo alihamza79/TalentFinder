@@ -1,29 +1,30 @@
-
-
 'use client'
 
 import Link from "next/link";
 import Pagination from "../components/Pagination";
-import candidatesData from "../../../data/candidates";
+import { useQuery } from 'react-query';
+import initializeDB from "@/appwrite/Services/dbServices";
+import { initializeStorageServices } from "@/appwrite/Services/storageServices";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addCandidateGender,
+  addKeyword,
+  addLocation,
+  addSort,
+  addPerPage,
+  clearExperienceF,
+  clearQualificationF,
   addCategory,
   addDatePost,
   addDestination,
-  addKeyword,
-  addLocation,
-  addPerPage,
-  addSort,
-  clearExperienceF,
-  clearQualificationF,
+  addCandidateGender
 } from "../../../features/filter/candidateFilterSlice";
 import {
   clearDatePost,
   clearExperience,
-  clearQualification,
+  clearQualification
 } from "../../../features/candidate/candidateSlice";
-import Image from "next/image";
 
 const FilterTopBox = () => {
   const {
@@ -39,7 +40,66 @@ const FilterTopBox = () => {
     perPage,
   } = useSelector((state) => state.candidateFilter) || {};
 
-  const dispatch = useDispatch();
+  const [storageServices, setStorageServices] = useState(null);
+  const [dbServices, setDbServices] = useState(null);
+
+  // Initialize storage and database services
+  useEffect(() => {
+    const initializeServices = async () => {
+      try {
+        const storage = await initializeStorageServices();
+        setStorageServices(storage);
+
+        const db = await initializeDB();
+        setDbServices(db);
+      } catch (error) {
+        console.error("Error initializing services:", error);
+      }
+    };
+
+    initializeServices();
+  }, []);
+
+  // Fetch candidates from jobSeekers collection
+  const { data, isLoading, error } = useQuery(
+    'candidates',
+    async () => {
+      if (dbServices?.jobSeekers && storageServices?.images) {
+        const response = await dbServices.jobSeekers.list();
+        const candidatesData = await Promise.all(
+          response.documents.map(async (doc) => {
+            let profileImageUrl = ""; // Default image in case of error or missing image
+
+            // Fetch profile image by ID using getFileView for a viewable URL
+            if (doc.profileImg) {
+              try {
+                const profileImage = await storageServices.images.getFileView(doc.profileImg);
+                if (profileImage.href) {
+                  profileImageUrl = profileImage.href; // Get the actual image view URL
+                }
+              } catch (error) {
+                console.error(`Error fetching profile image for candidate ${doc.name}:`, error);
+              }
+            }
+
+            return {
+              id: doc.userId,
+              name: doc.name,
+              jobTitle: doc.jobTitle,
+              location: `${doc.city}, ${doc.country}`,
+              avatar: profileImageUrl, // Set the avatar to either the fetched image or default
+              expectedSalaryRange: doc.expectedSalaryRange, // New attribute
+              categoryTags: doc.categoryTags || [], // New attribute (array of strings)
+            };
+          })
+        );
+        console.log("Candidate Data: ",candidatesData)
+        return candidatesData;
+      }
+      return [];
+    },
+    { enabled: !!dbServices && !!storageServices }
+  );
 
   // keyword filter
   const keywordFilter = (item) =>
@@ -67,18 +127,13 @@ const FilterTopBox = () => {
   // gender filter
   const genderFilter = (item) =>
     candidateGender !== ""
-      ? item?.gender.toLocaleLowerCase() ===
-          candidateGender.toLocaleLowerCase() && item
+      ? item?.gender.toLocaleLowerCase() === candidateGender.toLocaleLowerCase()
       : item;
 
   // date-posted filter
   const datePostedFilter = (item) =>
     datePost !== "all" && datePost !== ""
-      ? item?.created_at
-          ?.toLocaleLowerCase()
-          .split(" ")
-          .join("-")
-          .includes(datePost)
+      ? item?.created_at?.toLocaleLowerCase().split(" ").join("-").includes(datePost)
       : item;
 
   // experience filter
@@ -101,21 +156,21 @@ const FilterTopBox = () => {
   const sortFilter = (a, b) =>
     sort === "des" ? a.id > b.id && -1 : a.id < b.id && -1;
 
-  let content = candidatesData
+  let content = data
     ?.slice(perPage.start, perPage.end === 0 ? 10 : perPage.end)
     ?.filter(keywordFilter)
-    ?.filter(locationFilter)
-    ?.filter(destinationFilter)
-    ?.filter(categoryFilter)
-    ?.filter(genderFilter)
-    ?.filter(datePostedFilter)
-    ?.filter(experienceFilter)
-    ?.filter(qualificationFilter)
-    ?.sort(sortFilter)
-    ?.map((candidate) => (
+    // ?.filter(locationFilter)
+    // ?.filter(destinationFilter)
+    // ?.filter(categoryFilter)
+    // ?.filter(genderFilter)
+    // ?.filter(datePostedFilter)
+    // ?.filter(experienceFilter)
+    // ?.filter(qualificationFilter)
+    // ?.sort(sortFilter)
+    ?.map((candidate, index) => (
       <div
         className="candidate-block-four col-lg-4 col-md-6 col-sm-12"
-        key={candidate.id}
+        key={candidate.id || index}
       >
         <div className="inner-box">
           <ul className="job-other-info">
@@ -135,7 +190,7 @@ const FilterTopBox = () => {
               {candidate.name}
             </Link>
           </h3>
-          <span className="cat">{candidate.designation}</span>
+          <span className="cat">{candidate.jobTitle}</span>
 
           <ul className="job-info">
             <li>
@@ -144,13 +199,13 @@ const FilterTopBox = () => {
             </li>
             <li>
               <span className="icon flaticon-money"></span> $
-              {candidate.hourlyRate} / hour
+              {candidate.expectedSalaryRange} / year
             </li>
           </ul>
           {/* End candidate-info */}
 
           <ul className="post-tags">
-            {candidate.tags.map((val, i) => (
+            {candidate.categoryTags.map((val, i) => (
               <li key={i}>
                 <a href="#">{val}</a>
               </li>
@@ -195,59 +250,14 @@ const FilterTopBox = () => {
     dispatch(addSort(""));
     dispatch(addPerPage({ start: 0, end: 0 }));
   };
+
+  if (isLoading) return <div>Loading candidates...</div>;
+  if (error) return <div>Error fetching candidates</div>;
+
   return (
     <>
       <div className="ls-switcher">
-        <div className="showing-result">
-          {/* <div className="top-filters">
-                        <div className="form-group">
-                            <select className="chosen-single form-select">
-                                <option>Candidate Gender</option>
-                                <option>Male</option>
-                                <option>Female</option>
-                                <option>other</option>
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <select className="chosen-single form-select">
-                                <option>Date Posted</option>
-                                <option>New Jobs</option>
-                                <option>Freelance</option>
-                                <option>Full Time</option>
-                                <option>Internship</option>
-                                <option>Part Time</option>
-                                <option>Temporary</option>
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <select className="chosen-single form-select">
-                                <option>Experience Level</option>
-                                <option>New Jobs</option>
-                                <option>Freelance</option>
-                                <option>Full Time</option>
-                                <option>Internship</option>
-                                <option>Part Time</option>
-                                <option>Temporary</option>
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <select className="chosen-single form-select">
-                                <option>Education Level</option>
-                                <option>New Jobs</option>
-                                <option>Freelance</option>
-                                <option>Full Time</option>
-                                <option>Internship</option>
-                                <option>Part Time</option>
-                                <option>Temporary</option>
-                            </select>
-                        </div>
-                    </div> */}
-          {/* End top-left-filter */}
-        </div>
-        {/* End showing-result */}
+        <div className="showing-result"></div>
 
         <div className="sort-by">
           {keyword !== "" ||
@@ -280,56 +290,29 @@ const FilterTopBox = () => {
             <option value="asc">Newest</option>
             <option value="des">Oldest</option>
           </select>
-          {/* End select */}
 
           <select
-            className="chosen-single form-select ms-3 "
+            className="chosen-single form-select ms-3"
             onChange={perPageHandler}
             value={JSON.stringify(perPage)}
           >
-            <option
-              value={JSON.stringify({
-                start: 0,
-                end: 0,
-              })}
-            >
-              All
-            </option>
-            <option
-              value={JSON.stringify({
-                start: 0,
-                end: 15,
-              })}
-            >
+            <option value={JSON.stringify({ start: 0, end: 0 })}>All</option>
+            <option value={JSON.stringify({ start: 0, end: 15 })}>
               15 per page
             </option>
-            <option
-              value={JSON.stringify({
-                start: 0,
-                end: 20,
-              })}
-            >
+            <option value={JSON.stringify({ start: 0, end: 20 })}>
               20 per page
             </option>
-            <option
-              value={JSON.stringify({
-                start: 0,
-                end: 25,
-              })}
-            >
+            <option value={JSON.stringify({ start: 0, end: 25 })}>
               25 per page
             </option>
           </select>
-          {/* End select */}
         </div>
       </div>
-      {/* End top filter bar box */}
 
+{console.log("content: ",content)}
       <div className="row">{content}</div>
-      {/* End .row */}
-
       <Pagination />
-      {/* <!-- Listing Show More --> */}
     </>
   );
 };

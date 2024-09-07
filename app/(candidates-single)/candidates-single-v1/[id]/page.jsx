@@ -12,19 +12,18 @@ import JobSkills from "@/components/candidates-single-pages/shared-components/Jo
 import AboutVideo from "@/components/candidates-single-pages/shared-components/AboutVideo";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation"; // Use useParams to get the dynamic id
+import { useParams } from "next/navigation"; 
 import { useQuery } from "react-query";
 import initializeDB from "@/appwrite/Services/dbServices";
 import { initializeStorageServices } from "@/appwrite/Services/storageServices";
-import * as sdk from "node-appwrite"; // Import the SDK properly
+import * as sdk from "node-appwrite"; 
 
 const CandidateSingleDynamicV1 = () => {
-  const { id } = useParams(); // Get the dynamic id from URL params
+  const { id } = useParams(); 
 
   const [storageServices, setStorageServices] = useState(null);
   const [dbServices, setDbServices] = useState(null);
 
-  // Initialize Appwrite storage and database services
   useEffect(() => {
     const initializeServices = async () => {
       try {
@@ -39,15 +38,11 @@ const CandidateSingleDynamicV1 = () => {
     initializeServices();
   }, []);
 
-  // Fetch all documents and filter for the candidate with the matching id
   const { data: candidate, isLoading, error } = useQuery(
     ["candidate", id],
     async () => {
       if (dbServices?.jobSeekers && storageServices?.images && id) {
-        // Fetch all documents from the jobSeekers collection
         const response = await dbServices.jobSeekers.list();
-
-        // Find the candidate document that matches the id
         const candidateDoc = response.documents.find((doc) => doc.userId === id);
 
         if (!candidateDoc) {
@@ -57,13 +52,11 @@ const CandidateSingleDynamicV1 = () => {
         let profileImageUrl = "";
         let cvDownloadUrl = "";
 
-        // Fetch profile image if available
         if (candidateDoc.profileImg) {
           const profileImage = await storageServices.images.getFileView(candidateDoc.profileImg);
           profileImageUrl = profileImage?.href || "";
         }
 
-        // Fetch CV file if available
         if (candidateDoc.cv) {
           const cvDownload = await storageServices.files.getFileDownload(candidateDoc.cv);
           cvDownloadUrl = cvDownload?.href || "";
@@ -88,19 +81,12 @@ const CandidateSingleDynamicV1 = () => {
 
   return (
     <>
-      {/* <!-- Header Span --> */}
       <span className="header-span"></span>
 
       <LoginPopup />
-      {/* End Login Popup Modal */}
-
       <DefaulHeader />
-      {/* <!--End Main Header --> */}
-
       <MobileMenu />
-      {/* End MobileMenu */}
 
-      {/* <!-- Job Detail Section --> */}
       <section className="candidate-detail-section">
         <div className="upper-box">
           <div className="auto-container">
@@ -154,10 +140,8 @@ const CandidateSingleDynamicV1 = () => {
                 </div>
               </div>
             </div>
-            {/*  <!-- Candidate block Five --> */}
           </div>
         </div>
-        {/* <!-- Upper Box --> */}
 
         <div className="candidate-detail-outer">
           <div className="auto-container">
@@ -168,52 +152,9 @@ const CandidateSingleDynamicV1 = () => {
                     <h4>Candidates About</h4>
                     <AboutVideo />
                   </div>
-                  {/* <!-- About Video Box --> */}
                   <p>{candidate.description}</p>
-
-                  {/* <!-- Portfolio --> */}
-                  {/* <div className="portfolio-outer">
-                    <div className="row">
-                      <GalleryBox />
-                    </div>
-                  </div> */}
-
-                  {/* <!-- Candidate Resume Start --> */}
-                  {/* {candidateResume.map((resume) => (
-                    <div
-                      className={`resume-outer ${resume.themeColor}`}
-                      key={resume.id}
-                    >
-                      <div className="upper-title">
-                        <h4>{resume?.title}</h4>
-                      </div> */}
-
-                      {/* <!-- Start Resume BLock --> */}
-                      {/* {resume?.blockList?.map((item) => (
-                        <div className="resume-block" key={item.id}>
-                          <div className="inner">
-                            <span className="name">{item.meta}</span>
-                            <div className="title-box">
-                              <div className="info-box">
-                                <h3>{item.name}</h3>
-                                <span>{item.industry}</span>
-                              </div>
-                              <div className="edit-box">
-                                <span className="year">{item.year}</span>
-                              </div>
-                            </div>
-                            <div className="text">{item.text}</div>
-                          </div>
-                        </div>
-                      ))} */}
-
-                      {/* <!-- End Resume BLock --> */}
-                    {/* </div>
-                  ))} */}
-                  {/* <!-- Candidate Resume End --> */}
                 </div>
               </div>
-              {/* End .content-column */}
 
               <div className="sidebar-column col-lg-4 col-md-12 col-sm-12">
                 <aside className="sidebar">
@@ -232,12 +173,6 @@ const CandidateSingleDynamicV1 = () => {
                           <span>{candidate.age} Years</span>
                         </li>
 
-                        {/* <li>
-                          <i className="icon icon-rate"></i>
-                          <h5>Current Salary:</h5>
-                          <span>11K - 15K</span>
-                        </li> */}
-
                         <li>
                           <i className="icon icon-salary"></i>
                           <h5>Expected Salary:</h5>
@@ -253,7 +188,7 @@ const CandidateSingleDynamicV1 = () => {
                         <li>
                           <i className="icon icon-language"></i>
                           <h5>Language:</h5>
-<span>{Array.isArray(candidate.languages) ? candidate.languages.join(", ") : candidate.languages || "N/A"}</span>
+                          <span>{Array.isArray(candidate.languages) ? candidate.languages.join(", ") : candidate.languages || "N/A"}</span>
                         </li>
 
                         <li>
@@ -264,27 +199,28 @@ const CandidateSingleDynamicV1 = () => {
                       </ul>
                     </div>
                   </div>
-                  {/* End .sidebar-widget conadidate overview */}
 
                   <div className="sidebar-widget social-media-widget">
                     <h4 className="widget-title">Social media</h4>
                     <div className="widget-content">
                       <div className="social-links">
-                        <Social />
+                        <Social
+                          linkedin={candidate.linkedin}
+                          twitter={candidate.twitter}
+                          github={candidate.github}
+                        />
                       </div>
                     </div>
                   </div>
-                  {/* End .sidebar-widget social-media-widget */}
 
                   <div className="sidebar-widget">
                     <h4 className="widget-title">Professional Skills</h4>
                     <div className="widget-content">
                       <ul className="job-skills">
-                        <JobSkills />
+                        <JobSkills skills={candidate.skills} />
                       </ul>
                     </div>
                   </div>
-                  {/* End .sidebar-widget skill widget */}
 
                   <div className="sidebar-widget contact-widget">
                     <h4 className="widget-title">Contact Us</h4>
@@ -294,20 +230,14 @@ const CandidateSingleDynamicV1 = () => {
                       </div>
                     </div>
                   </div>
-                  {/* End .sidebar-widget contact-widget */}
                 </aside>
-                {/* End .sidebar */}
               </div>
-              {/* End .sidebar-column */}
             </div>
           </div>
         </div>
-        {/* <!-- job-detail-outer--> */}
       </section>
-      {/* <!-- End Job Detail Section --> */}
 
       <FooterDefault footerStyle="alternate5" />
-      {/* <!-- End Main Footer --> */}
     </>
   );
 };
