@@ -1,27 +1,28 @@
-import { storage } from "../config";
+import { simpleStorage, storage } from "../config"; // Ensure you have initialized Appwrite client and storage service
 import { ID, Permission, Role } from "appwrite";
 
 let createdBuckets = {}; // Cache for created buckets
 
+// Initialize required bucket configurations
 const requiredBuckets = [
   {
     name: "images",
     attributes: {
-      fileSizeLimit: 50 * 1000 * 1000, // 2MB
+      fileSizeLimit: 50 * 1000 * 1000, // 50MB
       allowedFileTypes: ["jpg", "jpeg", "png", "gif"],
     },
   },
   {
     name: "files",
     attributes: {
-      fileSizeLimit: 50 * 1000 * 1000, // 5MB
+      fileSizeLimit: 50 * 1000 * 1000, // 50MB
       allowedFileTypes: ["pdf", "doc", "docx", "txt"],
     },
   },
   {
     name: "videos",
     attributes: {
-      fileSizeLimit: 50 * 1000 * 1000, // 20MB
+      fileSizeLimit: 50 * 1000 * 1000, // 50MB
       allowedFileTypes: ["mp4", "mov", "avi"],
     },
   },
@@ -63,12 +64,12 @@ const createBucketIfNotExists = async (bucketName, attributes) => {
             true, // enabled
             attributes.fileSizeLimit, // maximumFileSize
             attributes.allowedFileTypes, // allowedFileExtensions
-            undefined, // compression (if not used, can be omitted or set to undefined)
+            undefined, // compression (optional)
             true, // encryption
             true // antivirus
           );
           console.log(`Bucket created: ${bucketName}`);
-          createdBuckets.bucketsList.buckets.push(bucket); // Add to list to avoid future duplication
+          createdBuckets.bucketsList.buckets.push(bucket); // Add to the list to avoid future duplication
           resolve(bucket);
         } catch (error) {
           reject(error);
@@ -111,8 +112,15 @@ const fetchAllBuckets = async () => {
         getFile: async (fileId) => await storage.getFile(bucket.$id, fileId),
         getFileDownload: async (fileId) =>
           await storage.getFileDownload(bucket.$id, fileId),
+        getFilePreview: async (fileId) =>
+          await storage.getFilePreview(bucket.$id, fileId),
+        getFileView: async (fileId) =>
+          await simpleStorage.getFileView(bucket.$id, fileId),
+        // await storage.getFileView(bucket.$id, fileId),
         listFiles: async (queries) =>
           await storage.listFiles(bucket.$id, queries),
+        updateFile: async (fileId, file) =>
+          await storage.updateFile(bucket.$id, fileId, file),
       };
     }
 
