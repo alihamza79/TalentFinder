@@ -1,6 +1,6 @@
+"use client";
+
 import dynamic from "next/dynamic";
-import candidates from "@/data/candidates";
-import candidateResume from "@/data/candidateResume";
 import LoginPopup from "@/components/common/form/login/LoginPopup";
 import FooterDefault from "@/components/footer/common-footer";
 import DefaulHeader from "@/components/header/DefaulHeader";
@@ -11,16 +11,80 @@ import Social from "@/components/candidates-single-pages/social/Social";
 import JobSkills from "@/components/candidates-single-pages/shared-components/JobSkills";
 import AboutVideo from "@/components/candidates-single-pages/shared-components/AboutVideo";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation"; // Use useParams to get the dynamic id
+import { useQuery } from "react-query";
+import initializeDB from "@/appwrite/Services/dbServices";
+import { initializeStorageServices } from "@/appwrite/Services/storageServices";
+import * as sdk from "node-appwrite"; // Import the SDK properly
 
-export const metadata = {
-  title:
-    "Candidate Single Dyanmic V1 || DIGI-X-TECH - Job Borad React NextJS Template",
-  description: "DIGI-X-TECH - Job Borad React NextJS Template",
-};
+const CandidateSingleDynamicV1 = () => {
+  const { id } = useParams(); // Get the dynamic id from URL params
 
-const CandidateSingleDynamicV1 = ({ params }) => {
-  const id = params.id;
-  const candidate = candidates.find((item) => item.id == id) || candidate[0];
+  const [storageServices, setStorageServices] = useState(null);
+  const [dbServices, setDbServices] = useState(null);
+
+  // Initialize Appwrite storage and database services
+  useEffect(() => {
+    const initializeServices = async () => {
+      try {
+        const storage = await initializeStorageServices();
+        const db = await initializeDB();
+        setStorageServices(storage);
+        setDbServices(db);
+      } catch (error) {
+        console.error("Error initializing services:", error);
+      }
+    };
+    initializeServices();
+  }, []);
+
+  // Fetch all documents and filter for the candidate with the matching id
+  const { data: candidate, isLoading, error } = useQuery(
+    ["candidate", id],
+    async () => {
+      if (dbServices?.jobSeekers && storageServices?.images && id) {
+        // Fetch all documents from the jobSeekers collection
+        const response = await dbServices.jobSeekers.list();
+
+        // Find the candidate document that matches the id
+        const candidateDoc = response.documents.find((doc) => doc.userId === id);
+
+        if (!candidateDoc) {
+          throw new Error("Candidate not found");
+        }
+
+        let profileImageUrl = "";
+        let cvDownloadUrl = "";
+
+        // Fetch profile image if available
+        if (candidateDoc.profileImg) {
+          const profileImage = await storageServices.images.getFileView(candidateDoc.profileImg);
+          profileImageUrl = profileImage?.href || "";
+        }
+
+        // Fetch CV file if available
+        if (candidateDoc.cv) {
+          const cvDownload = await storageServices.files.getFileDownload(candidateDoc.cv);
+          cvDownloadUrl = cvDownload?.href || "";
+        }
+
+        return {
+          ...candidateDoc,
+          profileImageUrl,
+          cvDownloadUrl,
+        };
+      }
+      return null;
+    },
+    {
+      enabled: !!id && !!dbServices && !!storageServices,
+    }
+  );
+
+  if (isLoading) return <div>Loading candidate details...</div>;
+  if (error) return <div>Error fetching candidate details</div>;
+  if (!candidate) return <div>No candidate found</div>;
 
   return (
     <>
@@ -47,31 +111,31 @@ const CandidateSingleDynamicV1 = ({ params }) => {
                     <Image
                       width={100}
                       height={100}
-                      src={candidate?.avatar}
-                      alt="avatar"
+                      src={candidate.profileImageUrl || "/default-avatar.jpg"}
+                      alt={candidate.name}
                     />
                   </figure>
-                  <h4 className="name">{candidate?.name}</h4>
+                  <h4 className="name">{candidate.name}</h4>
 
                   <ul className="candidate-info">
-                    <li className="designation">{candidate?.designation}</li>
+                    <li className="designation">{candidate.jobTitle}</li>
                     <li>
                       <span className="icon flaticon-map-locator"></span>
-                      {candidate?.location}
+                      {candidate.city}, {candidate.country}
                     </li>
                     <li>
                       <span className="icon flaticon-money"></span> $
-                      {candidate?.hourlyRate} / hour
+                      {candidate.expectedSalaryRange} / hour
                     </li>
                     <li>
                       <span className="icon flaticon-clock"></span> Member
-                      Since,Aug 19, 2020
+                      Since, {candidate.registerTime}
                     </li>
                   </ul>
 
                   <ul className="post-tags">
-                    {candidate?.tags?.map((val, i) => (
-                      <li key={i}>{val}</li>
+                    {candidate.categoryTags?.map((tag, i) => (
+                      <li key={i}>{tag}</li>
                     ))}
                   </ul>
                 </div>
@@ -79,7 +143,7 @@ const CandidateSingleDynamicV1 = ({ params }) => {
                 <div className="btn-box">
                   <a
                     className="theme-btn btn-style-one"
-                    href="/images/sample.pdf"
+                    href={candidate.cvDownloadUrl || "#"}
                     download
                   >
                     Download CV
@@ -105,45 +169,27 @@ const CandidateSingleDynamicV1 = ({ params }) => {
                     <AboutVideo />
                   </div>
                   {/* <!-- About Video Box --> */}
-                  <p>
-                    Hello my name is Nicole Wells and web developer from
-                    Portland. In pharetra orci dignissim, blandit mi semper,
-                    ultricies diam. Suspendisse malesuada suscipit nunc non
-                    volutpat. Sed porta nulla id orci laoreet tempor non
-                    consequat enim. Sed vitae aliquam velit. Aliquam ante erat,
-                    blandit at pretium et, accumsan ac est. Integer vehicula
-                    rhoncus molestie. Morbi ornare ipsum sed sem condimentum, et
-                    pulvinar tortor luctus. Suspendisse condimentum lorem ut
-                    elementum aliquam.
-                  </p>
-                  <p>
-                    Mauris nec erat ut libero vulputate pulvinar. Aliquam ante
-                    erat, blandit at pretium et, accumsan ac est. Integer
-                    vehicula rhoncus molestie. Morbi ornare ipsum sed sem
-                    condimentum, et pulvinar tortor luctus. Suspendisse
-                    condimentum lorem ut elementum aliquam. Mauris nec erat ut
-                    libero vulputate pulvinar.
-                  </p>
+                  <p>{candidate.description}</p>
 
                   {/* <!-- Portfolio --> */}
-                  <div className="portfolio-outer">
+                  {/* <div className="portfolio-outer">
                     <div className="row">
                       <GalleryBox />
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* <!-- Candidate Resume Start --> */}
-                  {candidateResume.map((resume) => (
+                  {/* {candidateResume.map((resume) => (
                     <div
                       className={`resume-outer ${resume.themeColor}`}
                       key={resume.id}
                     >
                       <div className="upper-title">
                         <h4>{resume?.title}</h4>
-                      </div>
+                      </div> */}
 
                       {/* <!-- Start Resume BLock --> */}
-                      {resume?.blockList?.map((item) => (
+                      {/* {resume?.blockList?.map((item) => (
                         <div className="resume-block" key={item.id}>
                           <div className="inner">
                             <span className="name">{item.meta}</span>
@@ -159,11 +205,11 @@ const CandidateSingleDynamicV1 = ({ params }) => {
                             <div className="text">{item.text}</div>
                           </div>
                         </div>
-                      ))}
+                      ))} */}
 
                       {/* <!-- End Resume BLock --> */}
-                    </div>
-                  ))}
+                    {/* </div>
+                  ))} */}
                   {/* <!-- Candidate Resume End --> */}
                 </div>
               </div>
@@ -177,43 +223,43 @@ const CandidateSingleDynamicV1 = ({ params }) => {
                         <li>
                           <i className="icon icon-calendar"></i>
                           <h5>Experience:</h5>
-                          <span>0-2 Years</span>
+                          <span>{candidate.experience} Years</span>
                         </li>
 
                         <li>
                           <i className="icon icon-expiry"></i>
                           <h5>Age:</h5>
-                          <span>28-33 Years</span>
+                          <span>{candidate.age} Years</span>
                         </li>
 
-                        <li>
+                        {/* <li>
                           <i className="icon icon-rate"></i>
                           <h5>Current Salary:</h5>
                           <span>11K - 15K</span>
-                        </li>
+                        </li> */}
 
                         <li>
                           <i className="icon icon-salary"></i>
                           <h5>Expected Salary:</h5>
-                          <span>26K - 30K</span>
+                          <span>${candidate.expectedSalaryRange}</span>
                         </li>
 
                         <li>
                           <i className="icon icon-user-2"></i>
                           <h5>Gender:</h5>
-                          <span>Female</span>
+                          <span>{candidate.gender}</span>
                         </li>
 
                         <li>
                           <i className="icon icon-language"></i>
                           <h5>Language:</h5>
-                          <span>English, German, Spanish</span>
+<span>{Array.isArray(candidate.languages) ? candidate.languages.join(", ") : candidate.languages || "N/A"}</span>
                         </li>
 
                         <li>
                           <i className="icon icon-degree"></i>
                           <h5>Education Level:</h5>
-                          <span>Master Degree</span>
+                          <span>{candidate.educationalLevel}</span>
                         </li>
                       </ul>
                     </div>
