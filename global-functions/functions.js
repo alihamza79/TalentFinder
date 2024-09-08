@@ -22,19 +22,15 @@ export const createCompanyCollectionAndDocument = async (
     // If the company collection doesn't exist, create it
     if (!companyCollectionExists) {
       const companyAttributes = [
+        { type: "string", name: "userId", required: true, size: 500 },
+        { type: "string", name: "profileImg", required: false, size: 500 },
         { type: "string", name: "name", required: false, size: 500 },
-        { type: "string", name: "email", required: false, size: 500 },
-        { type: "string", name: "phone", required: false, size: 20 },
-        { type: "string", name: "website", required: false, size: 500 },
-        { type: "string", name: "since", required: false, size: 20 },
+        { type: "string", name: "city", required: false, size: 500 },
+        { type: "string", name: "country", required: false, size: 100 },
+        { type: "string", name: "primaryIndustry", required: false, size: 500 },
+        { type: "email", name: "email", required: false, size: 500 }, // Type changed to email
         { type: "string", name: "companySize", required: false, size: 100 },
-        {
-          type: "string",
-          name: "allowListingVisibility",
-          required: false,
-          size: 10,
-        },
-        { type: "string", name: "aboutCompany", required: false, size: 1000 },
+        { type: "datetime", name: "estSince", required: false, size: 100 }, // Type changed to datetime
         {
           type: "string",
           name: "categoryTags",
@@ -42,17 +38,18 @@ export const createCompanyCollectionAndDocument = async (
           array: true,
           size: 500,
         },
+        { type: "url", name: "website", required: false, size: 500 }, // Type changed to url
         {
-          type: "string",
-          name: "socials",
+          type: "boolean",
+          name: "listingVisibilityPermission",
           required: false,
-          array: true,
-          size: 500,
+          size: 100,
         },
-        { type: "string", name: "city", required: false, size: 500 },
-        { type: "string", name: "address", required: false, size: 500 },
-        { type: "string", name: "country", required: false, size: 100 },
-        { type: "string", name: "userId", required: true, size: 500 },
+        { type: "string", name: "description", required: false, size: 500 },
+        { type: "url", name: "linkedin", required: false, size: 500 }, // Type changed to url
+        { type: "url", name: "twitter", required: false, size: 500 }, // Type changed to url
+        { type: "url", name: "instagram", required: false, size: 500 }, // Type changed to url
+        { type: "url", name: "facebook", required: false, size: 500 }, // Type changed to url
       ];
 
       // Create the company collection
