@@ -16,7 +16,7 @@ export const createCompanyCollectionAndDocument = async (
     // Check if the company collection already exists
     const existingCollections = await databases.listCollections(databaseId);
     const companyCollectionExists = existingCollections.collections.some(
-      (collection) => collection.name === "company"
+      (collection) => collection.name === "companies"
     );
 
     // If the company collection doesn't exist, create it
@@ -56,7 +56,7 @@ export const createCompanyCollectionAndDocument = async (
       const collection = await databases.createCollection(
         databaseId,
         ID.unique(),
-        "company",
+        "companies",
         [
           Permission.read(Role.any()),
           Permission.write(Role.any()),
@@ -84,11 +84,13 @@ export const createCompanyCollectionAndDocument = async (
 
     // Find the company collection
     const collections = await initializeCollections();
-    const companyCollection = collections.find((col) => col.name === "company");
+    const companyCollection = collections.find(
+      (col) => col.name === "companies"
+    );
 
     // Initialize db.company if not done already
-    if (!db.company) {
-      db.company = {
+    if (!db.companies) {
+      db.companies = {
         create: async (payload, id = ID.unique()) =>
           await databases.createDocument(
             databaseId,
@@ -101,11 +103,11 @@ export const createCompanyCollectionAndDocument = async (
 
     // Create a document in the company collection with the user's details
     const companyDocumentPayload = { ...companyData, userId };
-    await db.company.create(companyDocumentPayload, ID.unique());
+    await db.companies.create(companyDocumentPayload, ID.unique());
 
     console.log("Company document created successfully.");
   } catch (error) {
-    console.error("Error creating company collection or document:", error);
+    console.error("Error creating companies collection or document:", error);
     throw error;
   }
 };

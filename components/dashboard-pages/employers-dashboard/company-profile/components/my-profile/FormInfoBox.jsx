@@ -41,7 +41,7 @@ const FormInfoBox = () => {
       setDb(initializedDb);
 
       if (user?.userId && initializedDb) {
-        initializedDb.company?.list([sdk.Query.equal('userId', user.userId)])
+        initializedDb.companies?.list([sdk.Query.equal('userId', user.userId)])
           .then((response) => {
             if (response.documents.length > 0) {
               const document = response.documents[0];
@@ -141,7 +141,7 @@ const FormInfoBox = () => {
     };
 
     if (documentId && db) {
-      db.company?.update(documentId, updatedData)
+      db.companies?.update(documentId, updatedData)
         .then(() => {
           console.log("Document updated successfully");
         })
@@ -149,7 +149,7 @@ const FormInfoBox = () => {
           console.error("Error updating document:", error);
         });
     } else if (db) {
-      db.company?.create(updatedData)
+      db.companies?.create(updatedData)
         .then((newDoc) => {
           setDocumentId(newDoc.$id);
           console.log("Document created successfully");

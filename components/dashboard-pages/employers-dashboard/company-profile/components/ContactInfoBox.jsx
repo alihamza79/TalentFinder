@@ -22,7 +22,7 @@ const ContactInfoBox = () => {
             setDb(initializedDb);  // Set the db state
             
             if (user?.userId && initializedDb) {
-                initializedDb.company?.list([sdk.Query.equal('userId', user.userId)])
+                initializedDb.companies?.list([sdk.Query.equal('userId', user.userId)])
                     .then((response) => {
                         if (response.documents.length > 0) {
                             const document = response.documents[0];
@@ -64,7 +64,7 @@ const ContactInfoBox = () => {
 
         if (documentId && db) {
             // Update existing document
-            db.company?.update(documentId, updatedData)
+            db.companies?.update(documentId, updatedData)
                 .then(() => {
                     console.log("Contact information updated successfully");
                 })
