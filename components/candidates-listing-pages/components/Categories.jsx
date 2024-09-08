@@ -1,31 +1,25 @@
-
 'use client'
+
 import { useDispatch, useSelector } from "react-redux";
 import { addCategory } from "../../../features/filter/candidateFilterSlice";
+import categories from "../../../data/categories"; // Import categories data
 
 const Categories = () => {
-    const { category } = useSelector((state) => state.candidate) || {};
-    const { category: getCategory } =
-        useSelector((state) => state.candidateFilter) || {};
-
+    const { category } = useSelector((state) => state.candidateFilter) || {};
     const dispatch = useDispatch();
 
-    // category handler
+    // Category handler
     const categoryHandler = (e) => {
-        dispatch(addCategory(e.target.value));
+        dispatch(addCategory(e.target.value)); // Dispatch selected category
     };
 
     return (
         <>
-            <select
-                onChange={categoryHandler}
-                value={getCategory}
-                className="form-select"
-            >
+            <select onChange={categoryHandler} value={category} className="form-select">
                 <option value="">Choose a category</option>
-                {category?.map((item) => (
-                    <option key={item.id} value={item.value}>
-                        {item.name}
+                {categories.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                        {cat.label}
                     </option>
                 ))}
             </select>

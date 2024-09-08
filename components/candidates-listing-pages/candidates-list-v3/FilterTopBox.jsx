@@ -25,10 +25,12 @@ import {
   clearExperience,
   clearQualification
 } from "../../../features/candidate/candidateSlice";
+import categories from "../../../data/categories"; // Import categories data
 
 const FilterTopBox = () => {
   const {
     keyword,
+    jobTitle, // New jobTitle state from LocationBox
     location,
     destination,
     category,
@@ -93,7 +95,6 @@ const FilterTopBox = () => {
             };
           })
         );
-        console.log("Candidate Data: ",candidatesData)
         return candidatesData;
       }
       return [];
@@ -107,22 +108,21 @@ const FilterTopBox = () => {
       ? item?.name?.toLowerCase().includes(keyword?.toLowerCase()) && item
       : item;
 
-  // location filter
-  const locationFilter = (item) =>
-    location !== ""
-      ? item?.location?.toLowerCase().includes(location?.toLowerCase())
+  // jobTitle filter (from LocationBox)
+  const jobTitleFilter = (item) =>
+    jobTitle !== ""
+      ? item?.jobTitle?.toLowerCase().includes(jobTitle?.toLowerCase()) // Match jobTitle
       : item;
 
-  // destination filter
-  const destinationFilter = (item) =>
-    item?.destination?.min >= destination?.min &&
-    item?.destination?.max <= destination?.max;
-
-  // category filter
-  const categoryFilter = (item) =>
-    category !== ""
-      ? item?.category?.toLocaleLowerCase() === category?.toLocaleLowerCase()
-      : item;
+  // category filter (from Categories)
+  const categoryFilter = (item) => {
+    if (category === "") return item; // No filter if category is not selected
+    return item?.categoryTags?.some(tag => {
+      const selectedCategory = categories.find(cat => cat.value === category);
+      if (!selectedCategory) return false;
+      return selectedCategory.subOptions.some(subCat => subCat.value === tag);
+    });
+  };
 
   // gender filter
   const genderFilter = (item) =>
@@ -159,14 +159,8 @@ const FilterTopBox = () => {
   let content = data
     ?.slice(perPage.start, perPage.end === 0 ? 10 : perPage.end)
     ?.filter(keywordFilter)
-    // ?.filter(locationFilter)
-    // ?.filter(destinationFilter)
-    // ?.filter(categoryFilter)
-    // ?.filter(genderFilter)
-    // ?.filter(datePostedFilter)
-    // ?.filter(experienceFilter)
-    // ?.filter(qualificationFilter)
-    // ?.sort(sortFilter)
+    ?.filter(jobTitleFilter) // Apply jobTitle filter
+    ?.filter(categoryFilter) // Apply category filter
     ?.map((candidate, index) => (
       <div
         className="candidate-block-four col-lg-4 col-md-6 col-sm-12"
@@ -205,7 +199,7 @@ const FilterTopBox = () => {
           {/* End candidate-info */}
 
           <ul className="post-tags">
-            {candidate.categoryTags.map((val, i) => (
+            {candidate?.categoryTags?.map((val, i) => (
               <li key={i}>
                 <a href="#">{val}</a>
               </li>
@@ -261,6 +255,7 @@ const FilterTopBox = () => {
 
         <div className="sort-by">
           {keyword !== "" ||
+          jobTitle !== "" || // Show clear button if jobTitle or any other filter is applied
           location !== "" ||
           destination.min !== 0 ||
           destination.max !== 100 ||
@@ -310,7 +305,6 @@ const FilterTopBox = () => {
         </div>
       </div>
 
-{console.log("content: ",content)}
       <div className="row">{content}</div>
       <Pagination />
     </>
