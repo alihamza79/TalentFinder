@@ -25,7 +25,7 @@ const JobListingsTable = () => {
         setDb(initializedDb);
 
         if (user?.userId && initializedDb) {
-          const response = await initializedDb.Jobs.list([
+          const response = await initializedDb.jobs.list([
             sdk.Query.equal("userId", user.userId),
           ]);
           setJobs(response.documents);
@@ -62,7 +62,7 @@ const JobListingsTable = () => {
   const confirmDeleteJob = async () => {
     try {
       if (db && jobToDelete) {
-        await db.Jobs.delete(jobToDelete.$id);
+        await db.jobs.delete(jobToDelete.$id);
         setJobs(jobs.filter(job => job.$id !== jobToDelete.$id));
         setIsConfirmationOpen(false);
         setJobToDelete(null);

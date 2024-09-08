@@ -205,8 +205,9 @@ export const createJobSeekerCollectionAndDocument = async (
 };
 
 export const createJobsCollectionIfNotExists = async () => {
+  let isCreatingJobsCollection = false;
   if (isCreatingJobsCollection) {
-    console.log("Jobs collection creation is already in progress.");
+    console.log("jobs collection creation is already in progress.");
     return;
   }
 
@@ -218,18 +219,24 @@ export const createJobsCollectionIfNotExists = async () => {
     // Check if the Jobs collection already exists
     const existingCollections = await databases.listCollections(databaseId);
     const jobsCollectionExists = existingCollections.collections.some(
-      (collection) => collection.name === "Jobs"
+      (collection) => collection.name === "jobs"
     );
 
     if (!jobsCollectionExists) {
-      console.log("Creating Jobs collection...");
+      console.log("Creating jobs collection...");
 
       const jobAttributes = [
         { type: "string", name: "userId", required: true, size: 500 },
         { type: "datetime", name: "creationTime", required: false }, // No default value, so pass null
         { type: "string", name: "jobTitle", required: false, size: 500 },
         { type: "string", name: "jobDescription", required: false, size: 1000 },
-        { type: "string", name: "jobType", required: false, size: 100 },
+        {
+          type: "string",
+          name: "jobType",
+          required: false,
+          array: true,
+          size: 500,
+        },
         {
           type: "string",
           name: "categoryTags",
@@ -237,16 +244,23 @@ export const createJobsCollectionIfNotExists = async () => {
           array: true,
           size: 500,
         },
-        { type: "string", name: "salary", required: false, size: 100 },
+        {
+          type: "string",
+          name: "skills",
+          required: false,
+          array: true,
+          size: 500,
+        },
+        { type: "string", name: "rate", required: false, size: 100 },
       ];
 
-      await db.createCollection("Jobs", jobAttributes);
-      console.log("Jobs collection created successfully.");
+      await db.createCollection("jobs", jobAttributes);
+      console.log("jobs collection created successfully.");
     } else {
-      console.log("Jobs collection already exists.");
+      console.log("jobs collection already exists.");
     }
   } catch (error) {
-    console.error("Error creating Jobs collection:", error);
+    console.error("Error creating jobs collection:", error);
     throw error;
   } finally {
     isCreatingJobsCollection = false; // Reset the flag after creation process completes
